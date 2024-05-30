@@ -11,8 +11,9 @@ let speed_y = 0;
 
 let particles = [];
 
-const CRASH_START = 1;
-const CRASH_GOING_ON = 2;
+const START_SHIELD = 1;
+const CRASH_START = 2;
+const CRASH_GOING_ON = 3;
 
 let game_state = 0;
 
@@ -20,6 +21,7 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
     frameRate(30);
     noiseSeed(1);
+    restartAtStart();
 }
 
 // Function to calculate the distance between two points
@@ -129,7 +131,8 @@ function addParticles() {
             time_to_live: 70 // Initial alpha value for fading out
         };
 
-        particles.push(particle);    }
+        particles.push(particle);    
+    }
 }
 
 function drawParticles() {
@@ -162,6 +165,11 @@ function drawShip() {
     push();
 
     stroke(1);
+    if(game_state == START_SHIELD) {
+        fill("green")
+        circle(shipX, shipY, 53)
+    }
+
     // Translate to the ship's position
     translate(shipX, shipY);
 
@@ -215,13 +223,19 @@ function makeShipExplosion() {
     }
  }
 
+function gameOn() {
+    game_state = 0;
+}
+
  function restartAtStart() {
     noiseOffsetX = 0;
     noiseOffsetY = 0;
-    game_state = 0;
+    game_state = START_SHIELD;
     angle = 0;
     speed_x = 0;
     speed_y = 0;
+
+    setTimeout(gameOn, 5000);
  }
 
 function draw() {
