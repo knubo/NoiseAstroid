@@ -171,7 +171,7 @@ function drawOtherShips() {
         const shipX = (width / 2) + rel_x;
         const shipY = (height / 2) + rel_y;
 
-        drawOneShip(shipX, shipY, value.direction, "orange");
+        drawOneShip(shipX, shipY, value.direction, 1);
 
     });
 }
