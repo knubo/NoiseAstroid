@@ -11,6 +11,8 @@ let speed_y = 0;
 
 let particles = [];
 
+let otherShips = {};
+
 const START_SHIELD = 1;
 const CRASH_START = 2;
 const CRASH_GOING_ON = 3;
@@ -22,6 +24,10 @@ function setup() {
     frameRate(30);
     noiseSeed(1);
     restartAtStart();
+}
+
+window.otherShip = function otherShip(data) {
+   otherShips[data["nick"]] = data;
 }
 
 // Function to calculate the distance between two points
@@ -156,38 +162,27 @@ function drawParticles() {
     fill(255);
 }
 
+function drawOtherShips() {
+
+    Object.values(otherShips).forEach(value => {
+        const rel_x = (value.x - noiseOffsetX) * 500;
+        const rel_y = (value.y - noiseOffsetY) * 500;
+
+        const shipX = (width / 2) + rel_x;
+        const shipY = (height / 2) + rel_y;
+
+        drawOneShip(shipX, shipY, value.direction, "orange");
+
+    });
+}
+
 function drawShip() {
     // Set the ship's position to the center of the screen
     const shipX = width / 2;
     const shipY = height / 2;
 
     // Save the current state of the canvas
-    push();
-
-    stroke(1);
-    if(game_state == START_SHIELD) {
-        fill("green")
-        circle(shipX, shipY, 53)
-    }
-
-    // Translate to the ship's position
-    translate(shipX, shipY);
-
-    // Rotate the ship based on the angle variable
-    rotate(angle);
-
-    // Draw the triangular ship pointing upwards
-    fill(255); // White color for the ship
-    beginShape();
-
-    vertex(0, -20); // Tip of the triangle pointing upwards
-    vertex(-15, 15); // Bottom left corner
-    vertex(15, 15); // Bottom right corner
-    endShape(CLOSE);
-
-    let transform = drawingContext.getTransform();
-    // Restore the previous state of the canvas    
-    pop();
+    let transform = drawOneShip(shipX, shipY, angle, 1);
 
     let x_0 = transform['e'];
     let y_0 = transform['f'];
@@ -206,6 +201,36 @@ function drawShip() {
         x: ((transform.a * 15 + transform.c * 15 + transform.e) / media_per_unit) ,
         y: ((transform.b * 15 + transform.d * 15 + transform.f) / media_per_unit) 
     }];
+}
+
+function drawOneShip(shipX, shipY, shipAngle, col) {
+    push();
+
+    stroke(col);
+    if (game_state == START_SHIELD) {
+        fill("green");
+        circle(shipX, shipY, 53);
+    }
+
+    // Translate to the ship's position
+    translate(shipX, shipY);
+
+    // Rotate the ship based on the angle variable
+    rotate(shipAngle);
+
+    // Draw the triangular ship pointing upwards
+    fill(255); // White color for the ship
+    beginShape();
+
+    vertex(0, -20); // Tip of the triangle pointing upwards
+    vertex(-15, 15); // Bottom left corner
+    vertex(15, 15); // Bottom right corner
+    endShape(CLOSE);
+
+    let transform = drawingContext.getTransform();
+    // Restore the previous state of the canvas    
+    pop();
+    return transform;
 }
 
 function makeShipExplosion() {
@@ -241,6 +266,7 @@ function gameOn() {
 function draw() {
     clear();
 
+    drawOtherShips();
     drawParticles();
 
     if(game_state == CRASH_START) {
@@ -256,6 +282,8 @@ function draw() {
         draw_background([]);
         return;
     } else {
+        sendLocationUpdate(noiseOffsetX, noiseOffsetY, angle);
+
         let shipCoordinates = drawShip();
 
         draw_background(shipCoordinates);            
