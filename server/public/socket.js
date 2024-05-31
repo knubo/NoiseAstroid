@@ -13,6 +13,8 @@ if(nick) {
    
 }
 
+socket.emit('nick', nick);
+
 window.sendParticleUpdate = function sendParticleUpdate(particles) {
     if(!nick) {
         return;
@@ -33,7 +35,7 @@ window.sendLocationUpdate = function sendLocationUpdate(x, y, direction, w, h) {
         return;
     }
 
-    socket.emit('locationUpdate', {"x":x, "y":y, "direction":direction, "nick":nick, "w":w, "h":h});
+    socket.emit('locationUpdate', {"x":x, "y":y, "direction":direction, "w":w, "h":h});
 }
 
 if(socket) {

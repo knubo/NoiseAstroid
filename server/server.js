@@ -20,8 +20,15 @@ app.use(cors());
 // Serve the static files from the public directory
 app.use(express.static('public'));
 
+let activePlayers = {}
+
 io.on('connection', (socket) => {
-    console.log('A user connected');
+    console.log('A user connected with '+socket.id);
+
+    server.on('nick', (data) => {
+        activePlayers[socket.id] = nick;
+        socket.broadcast.emit("newPlayer", {"id":socket.id, "nick":nick}};
+    });
 
     // Listen for location updates from clients
     socket.on('locationUpdate', (data) => {
@@ -41,7 +48,10 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-        console.log('A user disconnected');
+        console.log('A user disconnected with id '+socket.id);
+        delete activePlayers[socket.id];
+        socket.broadcast.emit("playerLeft", {"id":socket.id, "nick":nick});
+
     });
 });
 
