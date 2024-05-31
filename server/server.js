@@ -27,6 +27,17 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('locationUpdate', data);
     });
 
+    // Listen for particles clients
+    socket.on('particlesUpdate', (data) => {
+        // Broadcast the location update to all other connected clients
+        socket.broadcast.emit('particlesUpdate', data);
+    });
+
+    socket.on('bulletUpdate', (data) => {
+        // Broadcast the location update to all other connected clients
+        socket.broadcast.emit('bulletUpdate', data);
+    });
+
     socket.on('disconnect', () => {
         console.log('A user disconnected');
     });

@@ -13,6 +13,13 @@ if(nick) {
    socket = io('http://'+server_address+':3000');
 }
 
+window.particleUpdate = function sendParticleUpdate(particles) {
+    if(!nick) {
+        return;
+    }
+    socket.emit('particleUpdate', particles);
+}
+
 window.sendLocationUpdate = function sendLocationUpdate(x, y, direction) {
     if(!nick) {
         return;
@@ -24,6 +31,9 @@ window.sendLocationUpdate = function sendLocationUpdate(x, y, direction) {
 if(socket) {
     socket.on('locationUpdate', (data) => {
         otherShip(data);
+    });
+    socket.on('particleUpdate', (data)  => {
+        otherParticles(data);
     });    
 }
 
