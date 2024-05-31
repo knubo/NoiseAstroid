@@ -13,7 +13,6 @@ if(nick) {
    
 }
 
-socket.emit('nick', nick);
 
 window.sendParticleUpdate = function sendParticleUpdate(particles) {
     if(!nick) {
@@ -61,5 +60,8 @@ if(socket) {
             timerProgressBar: true,
           });
     });
+
+    socket.emit('nick', nick);
+
 }
 
