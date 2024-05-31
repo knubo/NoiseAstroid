@@ -62,7 +62,7 @@ if(socket) {
     });
 
     socket.on('sendNick', (data) => {
-        socket.emit('nick', nick, (response) => {
+        socket.emit('nickResponse', nick, (response) => {
             console.log(response.status); // ok);
         });
     });
