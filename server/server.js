@@ -25,11 +25,9 @@ let activePlayers = {}
 io.on('connection', (socket) => {
     console.log('A user connected with '+socket.id);
 
-    server.on('nick', (data) => {
-        console.log("Nick for "+socket.id+" is now "+data);
-        activePlayers[socket.id] = data;
-        socket.broadcast.emit("newPlayer", {"id":socket.id, "nick":data});
-        callback({status: "ok"});
+    server.on('nickResponse', (data) => {
+    
+     
     });
 
     // Listen for location updates from clients
@@ -56,7 +54,11 @@ io.on('connection', (socket) => {
     });
 
     console.log("Sending request sendNick to " + socket.id);
-    socket.emit('sendNick', { message: '', id: socket.id });
+    socket.emit('sendNick', { message: '', id: socket.id }, (response) => {
+        console.log("Nick for "+socket.id+" is now "+response.nick);
+        activePlayers[socket.id] = response.nick;
+        socket.broadcast.emit("newPlayer", {"id":socket.id, "nick":response.nick});
+    });
 
 });
 

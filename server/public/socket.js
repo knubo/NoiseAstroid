@@ -62,9 +62,7 @@ if(socket) {
     });
 
     socket.on('sendNick', (data) => {
-        socket.emit('nickResponse', nick, (response) => {
-            console.log(response.status); // ok);
-        });
+        callback({status: "ok", nick: nick});
     });
 
 }
