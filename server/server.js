@@ -26,8 +26,8 @@ io.on('connection', (socket) => {
     console.log('A user connected with '+socket.id);
 
     server.on('nick', (data) => {
-        activePlayers[socket.id] = nick;
-        socket.broadcast.emit("newPlayer", {"id":socket.id, "nick":nick});
+        activePlayers[socket.id] = data;
+        socket.broadcast.emit("newPlayer", {"id":socket.id, "nick":data});
     });
 
     // Listen for location updates from clients
