@@ -10,7 +10,12 @@ if(!server_address) {
 
 let socket = 0;
 if(nick) {
-   socket = io('http://'+server_address+':3000');
+    if(server_address) {
+        socket = io('http://'+server_address+':3000');
+    } else {
+        socket = io('/');
+    }
+   
 }
 
 window.sendParticleUpdate = function sendParticleUpdate(particles) {
