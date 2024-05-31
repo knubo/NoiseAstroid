@@ -61,6 +61,19 @@ if(socket) {
           });
     });
 
+    socket.on('playerLeft', (data) => {
+        Swal.fire({
+            title: 'Byby player',
+            text: 'Player '+data.nick+" has left the game!",
+            icon: 'error',
+            toast: true,
+            position: 'bottom-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+          });
+    });
+
     socket.on('sendNick', (data, callback) => {
         callback({status: "ok", nick: nick});
     });
