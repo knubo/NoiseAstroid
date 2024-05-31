@@ -25,9 +25,6 @@ let activePlayers = {}
 io.on('connection', (socket) => {
     console.log('A user connected with '+socket.id);
 
-    console.log("Sending request sendNick to " + socket.id);
-    socket.emit('sendNick', { message: '', id: socket.id });
-
     server.on('nick', (data) => {
         console.log("Nick for "+socket.id+" is now "+data);
         activePlayers[socket.id] = data;
@@ -57,6 +54,10 @@ io.on('connection', (socket) => {
         socket.broadcast.emit("playerLeft", {"id":socket.id, "nick":activePlayers[socket.id]});
         delete activePlayers[socket.id];
     });
+
+    console.log("Sending request sendNick to " + socket.id);
+    socket.emit('sendNick', { message: '', id: socket.id });
+
 });
 
 const PORT = process.env.PORT || 3000;
