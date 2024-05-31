@@ -37,12 +37,11 @@ window.otherShip = function otherShip(data) {
 }
 
 window.otherParticles = function otherParticles(data) {
+
     for (let i = 0; i < data.length; i++) {
         let d = data[i];
-        d.x  +=  (d.noiseOffsetX - noiseOffsetX) * 500;
-        d.y += (d.noiseOffsetY - noiseOffsetY) * 500;
-
-        console.log("Particle at :"+d.x+" " +d.y);
+        d.x  += ((d.noiseOffsetX - noiseOffsetX) * 500);
+        d.y += ((d.noiseOffsetY - noiseOffsetY) * 500);
         
         particles.push(d);
     }
@@ -120,8 +119,8 @@ function draw_background(shipCoordinates) {
         // Iterate from left to right.
         for (let x = 0; x < width; x += 10) {
             // Scale the input coordinates.
-            let nx = noiseScale * x + noiseOffsetX;
-            let ny = noiseScale * y + noiseOffsetY;
+            let nx = (noiseScale * x) + noiseOffsetX;
+            let ny = (noiseScale * y) + noiseOffsetY;
 
             // Compute the noise value.
             if (noise(nx, ny) > 0.5) {
@@ -194,8 +193,8 @@ function drawOtherShips() {
         const rel_x = (value.x - noiseOffsetX) * 500;
         const rel_y = (value.y - noiseOffsetY) * 500;
 
-        const shipX = (width / 2) + rel_x;
-        const shipY = (height / 2) + rel_y;
+        const shipX = value.w + rel_x;
+        const shipY = value.h + rel_y;
 
         drawOneShip(shipX, shipY, value.direction, 1);
 
@@ -260,18 +259,21 @@ function drawOneShip(shipX, shipY, shipAngle, col) {
 }
 
 function makeShipExplosion() {
+    let newParticles = [];
     for(let i = 0; i < 200; i++) {
         let angelToUse = random(1,360);
 
-        particles.push({
+        let p = {
             x: (width / 2) - 5 + random(1, 10), 
             y: (height / 2) - 5 + random(1, 10), 
             x_speed: random(1,10) * cos(angelToUse - PI / 2),
             y_speed: random(1,10) * sin(angelToUse - PI / 2),
             time_to_live: 30+random(1, 20)
         }
-        );
+        particles.push(p);
+        newParticles.push(p);
     }
+    sendParticleUpdate(newParticles);
  }
 
 function gameOn() {
@@ -308,7 +310,7 @@ function draw() {
         draw_background([]);
         return;
     } else {
-        sendLocationUpdate(noiseOffsetX, noiseOffsetY, angle);
+        sendLocationUpdate(noiseOffsetX, noiseOffsetY, angle, width / 2, height / 2);
 
         let shipCoordinates = drawShip();
 

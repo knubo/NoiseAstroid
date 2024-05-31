@@ -28,12 +28,12 @@ window.sendBulletUpdate = function sendBulletUpdate(particles) {
 }
 
 
-window.sendLocationUpdate = function sendLocationUpdate(x, y, direction) {
+window.sendLocationUpdate = function sendLocationUpdate(x, y, direction, w, h) {
     if(!nick) {
         return;
     }
 
-    socket.emit('locationUpdate', {"x":x, "y":y, "direction":direction, "nick":nick});
+    socket.emit('locationUpdate', {"x":x, "y":y, "direction":direction, "nick":nick, "w":w, "h":h});
 }
 
 if(socket) {
