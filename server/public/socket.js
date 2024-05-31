@@ -63,7 +63,7 @@ if(socket) {
 
     socket.on('playerLeft', (data) => {
         Swal.fire({
-            title: 'Byby player',
+            title: 'Bye bye player',
             text: 'Player '+data.nick+" has left the game!",
             icon: 'error',
             toast: true,
