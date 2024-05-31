@@ -47,6 +47,19 @@ if(socket) {
     });   
     socket.on('bulletUpdate', (data)  => {
         otherBullet(data);
-    });    
+    });
+    
+    socket.on('newPlayer', (data) => {
+        Swal.fire({
+            title: 'New player',
+            text: 'Player '+data+" has joined the game!",
+            icon: 'success',
+            toast: true,
+            position: 'bottom-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+          });
+    });
 }
 
