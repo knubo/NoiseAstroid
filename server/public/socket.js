@@ -3,11 +3,6 @@ const urlParams = new URLSearchParams(queryString);
 const nick = urlParams.get('nick');
 let server_address = urlParams.get('server');
 
-if(!server_address) {
-    server_address = "localhost";
-}
-
-
 let socket = 0;
 if(nick) {
     if(server_address) {
