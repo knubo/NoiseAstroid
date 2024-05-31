@@ -61,7 +61,7 @@ if(socket) {
           });
     });
 
-    socket.on('sendNick', (data) => {
+    socket.on('sendNick', (data, callback) => {
         callback({status: "ok", nick: nick});
     });
 
