@@ -12,6 +12,8 @@ const io = socketIo(server, {
     }
 });
 
+app.use(express.static('public'))
+
 // Enable CORS for all routes
 app.use(cors());
 
