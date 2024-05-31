@@ -25,7 +25,7 @@ let activePlayers = {}
 io.on('connection', (socket) => {
     console.log('A user connected with '+socket.id);
 
-    log.info("Sending request sendNick to " + socket.id);
+    console.log("Sending request sendNick to " + socket.id);
     socket.emit('sendNick', { message: '', id: socket.id });
 
     server.on('nick', (data) => {
