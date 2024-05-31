@@ -13,6 +13,8 @@ let particles = [];
 
 let otherShips = {};
 
+let bullets = [];
+
 const START_SHIELD = 1;
 const CRASH_START = 2;
 const CRASH_GOING_ON = 3;
@@ -26,8 +28,24 @@ function setup() {
     restartAtStart();
 }
 
+window.otherBullet = function otherBullet(data) {
+   bullets.push(data);
+}
+
 window.otherShip = function otherShip(data) {
    otherShips[data["nick"]] = data;
+}
+
+window.otherParticles = function otherParticles(data) {
+    for (let i = 0; i < data.length; i++) {
+        let d = data[i];
+        d.x  +=  (d.noiseOffsetX - noiseOffsetX) * 500;
+        d.y += (d.noiseOffsetY - noiseOffsetY) * 500;
+
+        console.log("Particle at :"+d.x+" " +d.y);
+        
+        particles.push(d);
+    }
 }
 
 // Function to calculate the distance between two points
@@ -123,6 +141,7 @@ function draw_background(shipCoordinates) {
 }
 
 function addParticles() {
+    let newParticles = [];
     for (let i = 0; i < 2; i++) {
         let offset = createVector(-10 + random(20), 17); // Offset for the particles below the ship
         offset.rotate(angle); // Rotate the offset vector based on the ship's angle
@@ -134,11 +153,17 @@ function addParticles() {
             y: height / 2 + offset.y, // Below the ship with offset
             x_speed: speed_x - (currentAcceleration * 500 * cos(angelToUse - PI / 2)),
             y_speed: speed_y - (currentAcceleration * 500 * sin(angelToUse - PI / 2)),
-            time_to_live: 70 // Initial alpha value for fading out
-        };
+            time_to_live: 70, // Initial alpha value for fading out
+            noiseOffsetX: noiseOffsetX,
+            noiseOffsetY: noiseOffsetY,
+            
 
+        };
+        newParticles.push(particle);
         particles.push(particle);    
     }
+
+    sendParticleUpdate(newParticles);
 }
 
 function drawParticles() {
@@ -159,6 +184,7 @@ function drawParticles() {
             particles.splice(i, 1);
         }
     }
+    
     fill(255);
 }
 
