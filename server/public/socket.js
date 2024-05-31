@@ -51,7 +51,7 @@ if(socket) {
     socket.on('newPlayer', (data) => {
         Swal.fire({
             title: 'New player',
-            text: 'Player '+data+" has joined the game!",
+            text: 'Player '+data.nick+" has joined the game!",
             icon: 'success',
             toast: true,
             position: 'bottom-end',
