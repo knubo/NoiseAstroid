@@ -26,6 +26,7 @@ io.on('connection', (socket) => {
     console.log('A user connected with '+socket.id);
 
     server.on('nick', (data) => {
+        console.log("Nick for "+socket.id+" is now "+data);
         activePlayers[socket.id] = data;
         socket.broadcast.emit("newPlayer", {"id":socket.id, "nick":data});
     });
