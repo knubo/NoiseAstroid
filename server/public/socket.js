@@ -61,7 +61,9 @@ if(socket) {
           });
     });
 
-    socket.emit('nick', nick);
+    socket.emit('nick', nick, (response) => {
+        console.log(response.status); // ok);
+    });
 
 }
 
