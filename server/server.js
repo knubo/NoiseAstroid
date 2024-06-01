@@ -25,17 +25,20 @@ let activePlayers = {}
 io.on('connection', (socket) => {
     console.log('A user connected with '+socket.id);
 
-    server.on('nickResponse', (data) => {
-    
-     
-    });
-
     // Listen for location updates from clients
     socket.on('locationUpdate', (data) => {
         data.id = socket.id;
 
         // Broadcast the location update to all other connected clients
         socket.broadcast.emit('locationUpdate', data);
+    });
+
+    // Listen for location updates from clients
+    socket.on('scoreUpdate', (data) => {
+        data.id = socket.id;
+
+        // Broadcast the location update to all other connected clients
+        socket.broadcast.emit('scoreUpdate', data);
     });
 
     // Listen for particles clients
