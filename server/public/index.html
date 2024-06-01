@@ -2,47 +2,64 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Noise Asteroids</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="info.js"></script>
-    <script src="socket.io.js"></script>
-    <script src="sketch.js"></script>
-    <script src="socket.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noise Asteroid - Enter Nickname</title>
     <style>
-        body { margin: 0; }
-        canvas { display: block; }
-        .floating-div {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            background-color: rgba(255, 255, 255, 0.9);
-            border: 1px solid #ccc;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 10px;
-            z-index: 1000;
-        }
-        .floating-div ul {
-            list-style-type: none;
-            padding: 0;
+        body {
             margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle, #0072ff, black, #0072ff);
+            font-family: Arial, sans-serif;
         }
-        .floating-div li {
-            margin: 5px 0;
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        .floating-div li span {
-            font-weight: bold;
+        h1 {
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            width: calc(100% - 22px);
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #0072ff;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        input[type="submit"]:hover {
+            background-color: #005bb5;
         }
     </style>
 </head>
 <body>
-    <div class="floating-div">
-        <ul id="player_list">
-        </ul>
+    <div class="container">
+        <h1>Noise Asteroid</h1>
+        <form id="nickForm">
+            <input type="text" id="nick" name="nick" placeholder="Enter nickname" required>
+            <input type="submit" value="Start Game">
+        </form>
     </div>
 
     <script>
-        renderScores();
+        document.getElementById('nickForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const nick = document.getElementById('nick').value;
+            window.location.href = `game.html?nick=${encodeURIComponent(nick)}`;
+        });
     </script>
 </body>
 </html>
