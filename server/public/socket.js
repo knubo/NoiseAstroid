@@ -72,6 +72,7 @@ if(socket) {
             timer: 3000,
             timerProgressBar: true,
           });
+          clearOtherShip(data.id);
     });
 
     socket.on('sendNick', (data, callback) => {

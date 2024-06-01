@@ -33,7 +33,7 @@ io.on('connection', (socket) => {
     // Listen for location updates from clients
     socket.on('locationUpdate', (data) => {
         // Broadcast the location update to all other connected clients
-        socket.broadcast.emit('locationUpdate', data);
+        socket.broadcast.emit('locationUpdate', {"d":data, "id":socket.id});
     });
 
     // Listen for particles clients
@@ -44,7 +44,7 @@ io.on('connection', (socket) => {
 
     socket.on('bulletUpdate', (data) => {
         // Broadcast the location update to all other connected clients
-        socket.broadcast.emit('bulletUpdate', data);
+        socket.broadcast.emit('bulletUpdate', {"d":data,"id":socket.id});
     });
 
     socket.on('disconnect', () => {

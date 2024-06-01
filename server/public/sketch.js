@@ -32,8 +32,12 @@ window.otherBullet = function otherBullet(data) {
    bullets.push(data);
 }
 
+window.clearOtherShip = function clearOtherShip(id) {
+    delete otherShips.id;
+}
+
 window.otherShip = function otherShip(data) {
-   otherShips[data["nick"]] = data;
+   otherShips[data.id] = data;
 }
 
 window.otherParticles = function otherParticles(data) {
