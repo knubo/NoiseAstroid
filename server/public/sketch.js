@@ -32,6 +32,17 @@ window.otherBullet = function otherBullet(data) {
    bullets.push(data);
 }
 
+window.otherBulletClear = function otherBulletClear(data) {
+    for (let i = bullets.length - 1; i >= 0; i--) {
+        let bullet = bullets[i];
+
+        // Compute the noise value.
+        if(bullets.id == data.id) {
+            bullets.splice(i, 1);
+        }
+    }
+}
+
 window.clearOtherShip = function clearOtherShip(id) {
     delete otherShips.id;
 }
@@ -158,10 +169,10 @@ function maybeFireBullet() {
         x: width / 2 + offset.x, // Start at the center of the screen with offset
         y: height / 2 + offset.y, // Below the ship with offset
         x_speed: speed_x * 500 + (maxAcceleration * 6 * 500 * cos(angle - PI / 2)),
-
         y_speed: speed_y * 500 + (maxAcceleration * 6 * 500 * sin(angle - PI / 2)),
         noiseOffsetX: noiseOffsetX,
         noiseOffsetY: noiseOffsetY,
+        id: nick+now
     }
     bullets.push(bullet);
     sendBulletUpdate(bullet);
@@ -206,6 +217,7 @@ function drawBullets(shipCoordinates) {
         // Compute the noise value.
         if (noise(nx, ny) > 0.5) {
             bullets.splice(i, 1);
+            sendBulletClear(bullet);
             continue; 
         }
 

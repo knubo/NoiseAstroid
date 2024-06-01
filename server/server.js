@@ -51,6 +51,13 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('bulletUpdate', data);
     });
 
+    socket.on('bulletClear', (data) => {
+        data.id = socket.id;
+        // Broadcast the location update to all other connected clients
+        socket.broadcast.emit('bulletClear', data);
+    });
+
+
     socket.on('disconnect', () => {
         console.log('A user disconnected with id '+socket.id);
         socket.broadcast.emit("playerLeft", {"id":socket.id, "nick":activePlayers[socket.id]});

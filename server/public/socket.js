@@ -28,6 +28,13 @@ window.sendBulletUpdate = function sendBulletUpdate(bullet) {
     socket.emit('bulletUpdate', bullet);
 }
 
+window.sendBulletClear = function sendBulletClear(bullet) {
+    if(!nick) {
+        return;
+    }
+    socket.emit('bulletClear', bullet);
+}
+
 
 window.sendLocationUpdate = function sendLocationUpdate(x, y, direction, w, h) {
     if(!nick) {
