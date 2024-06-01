@@ -54,6 +54,9 @@ if(socket) {
     socket.on('bulletUpdate', (data)  => {
         otherBullet(data);
     });
+    socket.on('bulletClear', (data)  => {
+        otherBulletClear(data);
+    });
     
     socket.on('newPlayer', (data) => {
         Swal.fire({
@@ -66,6 +69,8 @@ if(socket) {
             timer: 3000,
             timerProgressBar: true,
           });
+          console.log("Id: "+data.id);
+          updatePlayerScore(data.id, data.nick, 0);
     });
 
     socket.on('playerLeft', (data) => {
@@ -80,11 +85,14 @@ if(socket) {
             timerProgressBar: true,
           });
           clearOtherShip(data.id);
+          clearScore(data.id);
     });
 
     socket.on('sendNick', (data, callback) => {
+        updatePlayerScore(socket.id, nick, 0);
         callback({status: "ok", nick: nick});
     });
+
 
 }
 

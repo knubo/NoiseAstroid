@@ -6,6 +6,7 @@ let currentAcceleration = 0;
 let noiseScale = 0.002;
 let angle = 0;
 let angel_acceleration;
+const MAX_ANGLE_ACCELERATION = 0.25;
 
 let speed_x = 0;
 let speed_y = 0;
@@ -209,8 +210,10 @@ function drawBullets(shipCoordinates) {
     for (let i = bullets.length - 1; i >= 0; i--) {
         let bullet = bullets[i];
 
+        bullet.y_speed += 0.1;
+
         bullet.x += bullet.x_speed;
-        bullet.y += bullet.y_speed;
+        bullet.y += bullet.y_speed; /* With gravity */
 
         let nx = (noiseScale * bullet.x) + bullet.noiseOffsetX;
         let ny = (noiseScale * bullet.y) + bullet.noiseOffsetY;
@@ -403,15 +406,15 @@ function draw() {
 
 
     if(keyIsDown(RIGHT_ARROW)) {
-        angel_acceleration += 0.05;
-        if(angel_acceleration > 0.25) {
-            angel_acceleration = 0.25;
+        angel_acceleration += 0.05  ;
+        if(angel_acceleration > MAX_ANGLE_ACCELERATION) {
+            angel_acceleration = MAX_ANGLE_ACCELERATION;
         }
         angle += angel_acceleration;
     } else if(keyIsDown(LEFT_ARROW)) {
         angel_acceleration -= 0.05;
-        if(angel_acceleration < -0.25) {
-            angel_acceleration = -0.25;
+        if(angel_acceleration < -MAX_ANGLE_ACCELERATION) {
+            angel_acceleration = -MAX_ANGLE_ACCELERATION;
         }
         angle += angel_acceleration;
     } else {
