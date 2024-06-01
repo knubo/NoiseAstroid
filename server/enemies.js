@@ -17,7 +17,7 @@ let roundCount = 0;
 function shoot(io) {
     roundCount++;
 
-    console.log("Enemy count:" +spawned.length);
+    console.log("Enemy count:" +sObject.keys(pawned).length);
 
     let pos = 0;
     for(i in spawned) {
