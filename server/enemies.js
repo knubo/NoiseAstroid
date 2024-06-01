@@ -55,6 +55,10 @@ function reportSpawned(socket) {
 
 function spawn(socket, x, y) {
 
+    if(1) {
+        return;
+    }
+
     for(let a in locs) {
         let i = locs[a] + x;
 
