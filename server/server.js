@@ -3,7 +3,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
 
-const { spawn,reportSpawned } = require('./enemies');
+const { spawn,reportSpawned, shoot } = require('./enemies');
 
 const app = express();
 const server = http.createServer(app);
@@ -21,6 +21,12 @@ app.use(cors());
 
 // Serve the static files from the public directory
 app.use(express.static('public'));
+
+function triggerShoot() {
+    shoot(io);
+}
+
+setInterval(triggerShoot, 1000);
 
 let activePlayers = {}
 
@@ -78,9 +84,6 @@ io.on('connection', (socket) => {
         socket.broadcast.emit("newPlayer", {"id":socket.id, "nick":response.nick});
         reportSpawned(socket);
     });
-
-    
-    
 
 });
 
