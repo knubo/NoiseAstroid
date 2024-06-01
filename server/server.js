@@ -32,19 +32,23 @@ io.on('connection', (socket) => {
 
     // Listen for location updates from clients
     socket.on('locationUpdate', (data) => {
+        data.id = socket.id;
+
         // Broadcast the location update to all other connected clients
-        socket.broadcast.emit('locationUpdate', {"d":data, "id":socket.id});
+        socket.broadcast.emit('locationUpdate', data);
     });
 
     // Listen for particles clients
     socket.on('particlesUpdate', (data) => {
+
         // Broadcast the location update to all other connected clients
         socket.broadcast.emit('particlesUpdate', data);
     });
 
     socket.on('bulletUpdate', (data) => {
+        data.id = socket.id;
         // Broadcast the location update to all other connected clients
-        socket.broadcast.emit('bulletUpdate', {"d":data,"id":socket.id});
+        socket.broadcast.emit('bulletUpdate', data);
     });
 
     socket.on('disconnect', () => {
@@ -57,7 +61,7 @@ io.on('connection', (socket) => {
     socket.emit('sendNick', { message: '', id: socket.id }, (response) => {
         console.log("Nick for "+socket.id+" is now "+response.nick);
         activePlayers[socket.id] = response.nick;
-        socket.broadcast.emit("newPlayer", {"id":socket.id, "nick":response.nick});
+        socket.broadcast.emit("newPlayer", {"id":socket.id, "nick":data});
     });
 
 });
