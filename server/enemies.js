@@ -17,6 +17,8 @@ let roundCount = 0;
 function shoot(io) {
     roundCount++;
 
+    console.log("Enemy count:" +spawned.length);
+
     let pos = 0;
     for(i in spawned) {
         let sobj = spawned[i];
