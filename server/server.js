@@ -1,9 +1,9 @@
-const p5 = require('node-p5');
-
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
+
+const { spawn,reportSpawned } = require('./enemies');
 
 const app = express();
 const server = http.createServer(app);
@@ -30,6 +30,8 @@ io.on('connection', (socket) => {
     // Listen for location updates from clients
     socket.on('locationUpdate', (data) => {
         data.id = socket.id;
+
+        spawn(socket, data.x, data.y);
 
         // Broadcast the location update to all other connected clients
         socket.broadcast.emit('locationUpdate', data);
@@ -74,7 +76,11 @@ io.on('connection', (socket) => {
         console.log("Nick for "+socket.id+" is now "+response.nick);
         activePlayers[socket.id] = response.nick;
         socket.broadcast.emit("newPlayer", {"id":socket.id, "nick":response.nick});
+        reportSpawned(socket);
     });
+
+    
+    
 
 });
 

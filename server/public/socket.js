@@ -69,7 +69,7 @@ if(socket) {
             timer: 3000,
             timerProgressBar: true,
           });
-          console.log("Id: "+data.id);
+         
           updatePlayerScore(data.id, data.nick, 0);
     });
 
@@ -84,8 +84,12 @@ if(socket) {
             timer: 3000,
             timerProgressBar: true,
           });
-          clearOtherShip(data.id);
+          clearOtherShip(data.id);c
           clearScore(data.id);
+    });
+
+    socket.on('spawn', (data) => {
+        addEnemy(data);
     });
 
     socket.on('sendNick', (data, callback) => {

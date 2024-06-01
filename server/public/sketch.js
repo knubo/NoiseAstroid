@@ -17,6 +17,8 @@ let otherShips = {};
 let lastBulletFired = 0;
 let bullets = [];
 
+let enemies = [];
+
 const START_SHIELD = 1;
 const CRASH_START = 2;
 const CRASH_GOING_ON = 3;
@@ -32,6 +34,11 @@ function setup() {
 
 window.otherBullet = function otherBullet(data) {
    bullets.push(data);
+}
+
+window.addEnemy = function addEnemy(data) {
+    console.log("Enemy added "+JSON.stringify(data));
+    enemies.push(data);
 }
 
 window.otherBulletClear = function otherBulletClear(data) {
@@ -243,6 +250,19 @@ function drawBullets(shipCoordinates) {
     }
 }
 
+function drawEnemies() {
+    for(let i = enemies.length - 1; i >= 0; i--) {
+        let enemy = enemies[i];
+
+        let x = (enemy.x - noiseOffsetX) * 500;
+        let y = (enemy.y - noiseOffsetY) * 500;
+        
+        fill("red");
+        circle(x, y, 20);
+        fill(255);
+    }
+}
+
 function drawParticles() {
     for (let i = particles.length - 1; i >= 0; i--) {
         let particle = particles[i];
@@ -374,6 +394,7 @@ function draw() {
 
     drawOtherShips();
     drawParticles();
+    drawEnemies();
 
     if(game_state == CRASH_START) {
         game_state = CRASH_GOING_ON;
