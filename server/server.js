@@ -61,7 +61,7 @@ io.on('connection', (socket) => {
     socket.emit('sendNick', { message: '', id: socket.id }, (response) => {
         console.log("Nick for "+socket.id+" is now "+response.nick);
         activePlayers[socket.id] = response.nick;
-        socket.broadcast.emit("newPlayer", {"id":socket.id, "nick":data});
+        socket.broadcast.emit("newPlayer", {"id":socket.id, "nick":response.nick});
     });
 
 });
