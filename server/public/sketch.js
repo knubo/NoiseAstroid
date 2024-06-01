@@ -193,7 +193,7 @@ function addParticles() {
     sendParticleUpdate(newParticles);
 }
 
-function drawBullets() {
+function drawBullets(shipCoordinates) {
     for (let i = bullets.length - 1; i >= 0; i--) {
         let bullet = bullets[i];
 
@@ -209,10 +209,20 @@ function drawBullets() {
             continue; 
         }
 
+        const x = bullet.x + (bullet.noiseOffsetX - noiseOffsetX) * 500;
+        const y = bullet.y + (bullet.noiseOffsetY - noiseOffsetY) * 500;
+
+        if(x > (width / 2 - 30) && x < (width / 2 + 30) && y > (height / 2 - 30) && y < (height / 2) + 30) {
+            if(!game_state && crashDetection(shipCoordinates, x, y, 2)) {
+                game_state = CRASH_START;
+                bullets.splice(i, 1);
+                continue; 
+            }
+        }
+
         fill(color(1));
         noStroke();
-        square(bullet.x + (bullet.noiseOffsetX - noiseOffsetX) * 500, 
-               bullet.y + (bullet.noiseOffsetY - noiseOffsetY) * 500, 4);
+        square(x, y, 4);
 
     }
 }
