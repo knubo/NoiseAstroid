@@ -21,11 +21,11 @@ window.sendParticleUpdate = function sendParticleUpdate(particles) {
     socket.emit('particlesUpdate', particles);
 }
 
-window.sendBulletUpdate = function sendBulletUpdate(particles) {
+window.sendBulletUpdate = function sendBulletUpdate(bullet) {
     if(!nick) {
         return;
     }
-    socket.emit('bulletUpdate', particles);
+    socket.emit('bulletUpdate', bullet);
 }
 
 

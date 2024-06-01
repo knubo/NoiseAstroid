@@ -10,9 +10,9 @@ let speed_x = 0;
 let speed_y = 0;
 
 let particles = [];
-
 let otherShips = {};
 
+let lastBulletFired = 0;
 let bullets = [];
 
 const START_SHIELD = 1;
@@ -143,13 +143,37 @@ function draw_background(shipCoordinates) {
     }
 }
 
+function maybeFireBullet() {
+    let now = Date.now();
+
+    if(lastBulletFired + 300 > now) {
+        return;
+    }
+    lastBulletFired = now;
+
+    let offset = createVector(0,-22); // Offset for the tip of ship.
+    offset.rotate(angle); // Rotate the offset vector based on the ship's angle
+
+    let bullet = {
+        x: width / 2 + offset.x, // Start at the center of the screen with offset
+        y: height / 2 + offset.y, // Below the ship with offset
+        x_speed: speed_x * 500 + (maxAcceleration * 6 * 500 * cos(angle - PI / 2)),
+
+        y_speed: speed_y * 500 + (maxAcceleration * 6 * 500 * sin(angle - PI / 2)),
+        noiseOffsetX: noiseOffsetX,
+        noiseOffsetY: noiseOffsetY,
+    }
+    bullets.push(bullet);
+    sendBulletUpdate(bullet);
+}
+
 function addParticles() {
     let newParticles = [];
     for (let i = 0; i < 2; i++) {
         let offset = createVector(-10 + random(20), 17); // Offset for the particles below the ship
         offset.rotate(angle); // Rotate the offset vector based on the ship's angle
 
-        let angelToUse = angle + ( (10 - random(0, 20) ) / 2.0 * 3.14);
+        let angelToUse = angle + ( (10 - random(0, 20) ) / (2.0 * PI));
 
         let particle = {
             x: width / 2 + offset.x, // Start at the center of the screen with offset
@@ -167,6 +191,30 @@ function addParticles() {
     }
 
     sendParticleUpdate(newParticles);
+}
+
+function drawBullets() {
+    for (let i = bullets.length - 1; i >= 0; i--) {
+        let bullet = bullets[i];
+
+        bullet.x += bullet.x_speed;
+        bullet.y += bullet.y_speed;
+
+        let nx = (noiseScale * bullet.x) + bullet.noiseOffsetX;
+        let ny = (noiseScale * bullet.y) + bullet.noiseOffsetY;
+
+        // Compute the noise value.
+        if (noise(nx, ny) > 0.5) {
+            bullets.splice(i, 1);
+            continue; 
+        }
+
+        fill(color(1));
+        noStroke();
+        square(bullet.x + (bullet.noiseOffsetX - noiseOffsetX) * 500, 
+               bullet.y + (bullet.noiseOffsetY - noiseOffsetY) * 500, 4);
+
+    }
 }
 
 function drawParticles() {
@@ -312,14 +360,18 @@ function draw() {
 
     if(game_state == CRASH_GOING_ON) {
         draw_background([]);
+        drawBullets([]);
         return;
     } else {
         sendLocationUpdate(noiseOffsetX, noiseOffsetY, angle, width / 2, height / 2);
 
         let shipCoordinates = drawShip();
 
-        draw_background(shipCoordinates);            
+        draw_background(shipCoordinates);
+        drawBullets(shipCoordinates);
     }
+
+    
 
     // Update the position based on the current speed and angle
     noiseOffsetX += speed_x;
@@ -330,6 +382,11 @@ function draw() {
     }
     if(keyIsDown(LEFT_ARROW)) {
         angle -= 0.25;
+    }
+
+    /* z key */
+    if(keyIsDown(90)) {
+        maybeFireBullet();
     }
 
     if(keyIsDown(UP_ARROW)) {
