@@ -5,6 +5,7 @@ let maxAcceleration = 0.004;
 let currentAcceleration = 0;
 let noiseScale = 0.002;
 let angle = 0;
+let angel_acceleration;
 
 let speed_x = 0;
 let speed_y = 0;
@@ -399,11 +400,22 @@ function draw() {
     noiseOffsetX += speed_x;
     noiseOffsetY += speed_y; 
 
+
+
     if(keyIsDown(RIGHT_ARROW)) {
-        angle += 0.25;
-    }
-    if(keyIsDown(LEFT_ARROW)) {
-        angle -= 0.25;
+        angel_acceleration += 0.05;
+        if(angel_acceleration > 0.25) {
+            angel_acceleration = 0.25;
+        }
+        angle += angel_acceleration;
+    } else if(keyIsDown(LEFT_ARROW)) {
+        angel_acceleration -= 0.05;
+        if(angel_acceleration < -0.25) {
+            angel_acceleration = -0.25;
+        }
+        angle += angel_acceleration;
+    } else {
+        angel_acceleration = 0;
     }
 
     /* z key */
