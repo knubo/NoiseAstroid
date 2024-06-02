@@ -21,7 +21,7 @@ function renderScores() {
 }
 
 window.clearScore = function clearScore(id) {
-    delete players.id;
+    delete players[id];
 }
 
 window.updatePlayerScore = function updatePlayerScore(id, nick, score) {
