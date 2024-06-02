@@ -8,6 +8,8 @@ let angle = 0;
 let angel_acceleration;
 const MAX_ANGLE_ACCELERATION = 0.25;
 
+let score = 0;
+
 let speed_x = 0;
 let speed_y = 0;
 
@@ -17,7 +19,7 @@ let otherShips = {};
 let lastBulletFired = 0;
 let bullets = [];
 
-let enemies = [];
+let enemies = {};
 
 const START_SHIELD = 1;
 const CRASH_START = 2;
@@ -38,7 +40,16 @@ window.otherBullet = function otherBullet(data) {
 
 window.addEnemy = function addEnemy(data) {
     console.log("Enemy added "+JSON.stringify(data));
-    enemies.push(data);
+    enemies[data.id] = data;
+}
+
+window.setEnemies = function setEnemies(data) {
+    console.log("Setting enemies");
+    enemies = data;
+}
+ 
+window.clearEnemy = function clearEnemy(data) {
+    delete enemies[data.id];
 }
 
 window.otherBulletClear = function otherBulletClear(data) {
@@ -53,7 +64,7 @@ window.otherBulletClear = function otherBulletClear(data) {
 }
 
 window.clearOtherShip = function clearOtherShip(id) {
-    delete otherShips.id;
+    delete otherShips[id];
 }
 
 window.otherShip = function otherShip(data) {
@@ -213,6 +224,31 @@ function addParticles() {
     sendParticleUpdate(newParticles);
 }
 
+function checkIfHitEnemy(bullet) {
+    for(id in enemies) {
+        let enemy = enemies[id];
+
+        let enemyX = (enemy.x - noiseOffsetX) * 500;
+        let enemyY = (enemy.y - noiseOffsetY) * 500;
+
+        let bulletX = bullet.x;
+        let bulletY = bullet.y;
+
+        let distance = dist(bulletX, bulletY, enemyX, enemyY);
+
+        if(distance < 20) {
+            delete enemies[id];''
+            score++;
+            updateScore(score);
+
+            sendClearEnemy(enemy);
+            makeExplosion(enemyX,enemyY);
+            return 1;
+        }
+    }
+    return 0;
+}
+
 function drawBullets(shipCoordinates) {
     for (let i = bullets.length - 1; i >= 0; i--) {
         let bullet = bullets[i];
@@ -243,6 +279,14 @@ function drawBullets(shipCoordinates) {
             }
         }
 
+        if(bullet.id && bullet.id.startsWith && bullet.id.startsWith(nick)) {
+            if(checkIfHitEnemy(bullet)) {
+                bullets.splice(i, 1);
+                sendBulletClear(bullet);
+                continue; 
+            }
+        }
+
         fill(color(1));
         noStroke();
         square(x, y, 4);
@@ -251,8 +295,12 @@ function drawBullets(shipCoordinates) {
 }
 
 function drawEnemies() {
-    for(let i = enemies.length - 1; i >= 0; i--) {
-        let enemy = enemies[i];
+    for(id in enemies) {
+        let enemy = enemies[id];
+
+        if(!enemy.alive) {
+            continue;
+        }
 
         let x = (enemy.x - noiseOffsetX) * 500;
         let y = (enemy.y - noiseOffsetY) * 500;
@@ -260,6 +308,7 @@ function drawEnemies() {
         fill("red");
         circle(x, y, 20);
         fill(255);
+
     }
 }
 
@@ -356,14 +405,14 @@ function drawOneShip(shipX, shipY, shipAngle, col) {
     return transform;
 }
 
-function makeShipExplosion() {
+function makeExplosion(x,y) {
     let newParticles = [];
     for(let i = 0; i < 200; i++) {
         let angelToUse = random(1,360);
 
         let p = {
-            x: (width / 2) - 5 + random(1, 10), 
-            y: (height / 2) - 5 + random(1, 10), 
+            x: x - 5 + random(1, 10), 
+            y: y - 5 + random(1, 10), 
             x_speed: random(1,10) * cos(angelToUse - PI / 2),
             y_speed: random(1,10) * sin(angelToUse - PI / 2),
             time_to_live: 30+random(1, 20)
@@ -401,7 +450,9 @@ function draw() {
         angle = 0;
         speed_x = 0;
         speed_y = 0;
-        makeShipExplosion();
+        score -= 2;
+        updateScore(score);
+        makeExplosion(width/2, height/2);
         setTimeout(restartAtStart, 4000);
     } 
 

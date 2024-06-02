@@ -3,7 +3,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
 
-const { spawn,reportSpawned, shoot } = require('./enemies');
+const { spawn,reportSpawned, clearSpawn, shoot } = require('./enemies');
 
 const app = express();
 const server = http.createServer(app);
@@ -64,11 +64,25 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('bulletUpdate', data);
     });
 
+
     socket.on('bulletClear', (data) => {
         data.id = socket.id;
         // Broadcast the location update to all other connected clients
         socket.broadcast.emit('bulletClear', data);
     });
+
+    socket.on('updateScore', (data) => {
+        data.id = socket.id;
+
+        socket.broadcast.emit('updateScore', data);
+    });
+
+    socket.on('spawnClear', (data) => {
+        clearSpawn(data);
+        // Broadcast the spawn clear to all other connected clients
+        socket.broadcast.emit('spawnClear', data);
+    });
+
 
 
     socket.on('disconnect', () => {

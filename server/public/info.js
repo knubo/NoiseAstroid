@@ -25,7 +25,18 @@ window.clearScore = function clearScore(id) {
 }
 
 window.updatePlayerScore = function updatePlayerScore(id, nick, score) {
-    players[id] = [nick, score];
+
+    if(nick) {
+        players[id] = [nick, score];
+    }
+    else {
+        if(!players[id]) {
+            players[id] = ["Unknown", score];
+        } else {
+            players[id][1] = score;
+        }
+    }
+    
 
     renderScores();
 }

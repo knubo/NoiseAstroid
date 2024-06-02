@@ -19,46 +19,35 @@ function shoot(io) {
 
     console.log("Enemy count:" +Object.keys(spawned).length);
 
-    let pos = 0;
     for(i in spawned) {
         let sobj = spawned[i];
 
         if(sobj.alive == 0) {
             continue;
         }
-        pos++;
+        const angle = Math.floor(p5Instance.random(0,3)) * 90;
 
-        if((roundCount % pos) < 2) {
-            const angle = Math.floor(p5Instance.random(0,3)) * 90;
-
-            let bullet = {
-                x: 0,
-                y: 0,
-                x_speed: (0.004 * 3 * 500 * Math.cos( angle * (p5Instance.PI / 180) )),
-                y_speed: (0.004 * 3 * 500 * Math.sin( angle * (p5Instance.PI / 180) )),
-                noiseOffsetX: sobj.x,
-                noiseOffsetY: sobj.y,
-                alive: 1
-            }
-            io.emit('bulletUpdate', bullet);
+        let bullet = {
+            x: 0,
+            y: 0,
+            x_speed: (0.004 * 3 * 500 * Math.cos( angle * (p5Instance.PI / 180) )),
+            y_speed: (0.004 * 3 * 500 * Math.sin( angle * (p5Instance.PI / 180) )),
+            noiseOffsetX: sobj.x,
+            noiseOffsetY: sobj.y  
         }
+        io.emit('bulletUpdate', bullet);
     }
+}
+
+function clearSpawn(spawn) {
+    spawned[spawn.id].alive = 0;
 }
 
 function reportSpawned(socket) {
-    for(let i in spawned) {
-        let sobj = spawned[i];
-        console.log("Sending on connect.")
-        socket.emit('spawn', { message: sobj, id: socket.id });
-    }    
+    socket.emit('spawned', spawned);
 }
 
 function spawn(socket, x, y) {
-
-    if(1) {
-        return;
-    }
-
     for(let a in locs) {
         let i = locs[a] + x;
 
@@ -74,7 +63,7 @@ function spawn(socket, x, y) {
                     continue;
                 }
 
-                let sobj = {"x": i, "y": j, id: spawnId};
+                let sobj = {"x": i, "y": j, id: spawnId, "alive":1};
 
                 spawned[spawnId] = sobj;
                 //console.log("Spawning id is:"+spawnId + "sobj: "+JSON.stringify(sobj)+" x is : "+x+" y is:"+y+" i is: "+i+" j is: "+j);
@@ -87,5 +76,5 @@ function spawn(socket, x, y) {
 
 
 module.exports = {
-    spawn,reportSpawned,shoot
+    spawn,reportSpawned,shoot,clearSpawn
 };

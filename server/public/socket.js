@@ -21,6 +21,17 @@ window.sendParticleUpdate = function sendParticleUpdate(particles) {
     socket.emit('particlesUpdate', particles);
 }
 
+window.updateScore = function updateScore(points) {
+    if(!nick) {
+        return;
+    }
+
+    updatePlayerScore("MY_SCORE", 0, points);
+
+    socket.emit('updateScore', {score:points, nick:nick});
+
+}
+
 window.sendBulletUpdate = function sendBulletUpdate(bullet) {
     if(!nick) {
         return;
@@ -35,6 +46,12 @@ window.sendBulletClear = function sendBulletClear(bullet) {
     socket.emit('bulletClear', bullet);
 }
 
+window.sendClearEnemy = function sendClearEnemy(enemy) {
+    if(!nick) {
+        return;
+    }
+    socket.emit('spawnClear', enemy);
+}
 
 window.sendLocationUpdate = function sendLocationUpdate(x, y, direction, w, h) {
     if(!nick) {
@@ -57,6 +74,10 @@ if(socket) {
     socket.on('bulletClear', (data)  => {
         otherBulletClear(data);
     });
+
+    socket.on('clearSpawn', (data) => {
+        clearEnemy(data);
+    });
     
     socket.on('newPlayer', (data) => {
         Swal.fire({
@@ -71,6 +92,10 @@ if(socket) {
           });
          
           updatePlayerScore(data.id, data.nick, 0);
+    });
+
+    socket.on('updateScore', (data) => {
+        updatePlayerScore(data.id, data.nick, data.score);
     });
 
     socket.on('playerLeft', (data) => {
@@ -92,8 +117,12 @@ if(socket) {
         addEnemy(data);
     });
 
+    socket.on('spawned', (data) => {
+        setEnemies(data);
+    });
+
     socket.on('sendNick', (data, callback) => {
-        updatePlayerScore(socket.id, nick, 0);
+        updatePlayerScore("MY_SCORE", nick, 0);
         callback({status: "ok", nick: nick});
     });
 
