@@ -46,6 +46,7 @@ function preload() {
         shipExplosionSound = loadSound('audio/large-explosion-1-43636.mp3');
         bulletSound = loadSound('audio/one-shot-kickdrum-very-dirty-113410.mp3');
         bulletSound2 = loadSound('audio/weapon01-47681.mp3');
+        ambienSound = loadSound('audio/ambience-sounds-8-15136.mp3');
 
         bulletSound.setVolume(0.5);
         bulletSound2.setVolume(0.5);
@@ -61,6 +62,8 @@ function setup() {
 
     if(gameWithSound) {
         thrustSound.setLoop(true);
+        ambienSound.setLoop(true);
+        ambienSound.play();
     }
     
 }
