@@ -275,6 +275,11 @@ function drawBullets(shipCoordinates) {
         const x = bullet.x + (bullet.noiseOffsetX - noiseOffsetX) * 500;
         const y = bullet.y + (bullet.noiseOffsetY - noiseOffsetY) * 500;
 
+        /* Outside of view screen - no need to draw */
+        if( x < 0 || x > width || y < 0 || y > height) {
+            continue;
+        }
+
         if(x > (width / 2 - 30) && x < (width / 2 + 30) && y > (height / 2 - 30) && y < (height / 2) + 30) {
             if(!game_state && crashDetection(shipCoordinates, x, y, 2)) {
                 game_state = CRASH_START;
@@ -308,6 +313,11 @@ function drawEnemies() {
 
         let centerX = (enemy.x - noiseOffsetX) * 500;
         let centerY = (enemy.y - noiseOffsetY) * 500;
+
+        /* Outside of view screen - no need to draw */
+        if(centerX < -20 || centerX > width+20 || centerY < -20 || centerY > height+20) {
+            continue;
+        }
 
                 
         // Set up the circle properties
