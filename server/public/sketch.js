@@ -25,7 +25,7 @@ let thrustSound;
 let shootSound;
 let explosionSound;
 let shipExplosionSound;
-let bulletAudio;
+let bulletSound;
 
 const START_SHIELD = 1;
 const CRASH_START = 2;
@@ -33,16 +33,24 @@ const CRASH_GOING_ON = 3;
 
 let game_state = 0;
 
-function preload() {
-    thrustSound = loadSound('audio/loopingthrust-95548.mp3');
-    shootSound = loadSound('audio/sci-fi-cannon-firing-whoosh-after-fire-low-pitch-slight-reverb-204400.mp3');
-    explosionSound = loadSound('audio/explosion-drop-6879.mp3');
-    shipExplosionSound = loadSound('audio/large-explosion-1-43636.mp3');
-    bulletAudio = loadSound('audio/one-shot-kickdrum-very-dirty-113410.mp3');
-    bulletAudio2 = loadSound('audio/weapon01-47681.mp3');
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+let gameWithSound = urlParams.get('audio');
 
-    bulletAudio.setVolume(0.5);
-    bulletAudio2.setVolume(0.5);
+
+function preload() {
+    if (gameWithSound) {
+        thrustSound = loadSound('audio/loopingthrust-95548.mp3');
+        shootSound = loadSound('audio/sci-fi-cannon-firing-whoosh-after-fire-low-pitch-slight-reverb-204400.mp3');
+        explosionSound = loadSound('audio/explosion-drop-6879.mp3');
+        shipExplosionSound = loadSound('audio/large-explosion-1-43636.mp3');
+        bulletSound = loadSound('audio/one-shot-kickdrum-very-dirty-113410.mp3');
+        bulletSound2 = loadSound('audio/weapon01-47681.mp3');
+
+        bulletSound.setVolume(0.5);
+        bulletSound2.setVolume(0.5);
+    }
+
 }
 
 function setup() {
@@ -50,31 +58,37 @@ function setup() {
     frameRate(30);
     noiseSeed(1);
     restartAtStart();
-    thrustSound.setLoop(true); // Set the sound to loop
+
+    if(gameWithSound) {
+        thrustSound.setLoop(true);
+    }
+    
 }
 
 window.otherBullet = function otherBullet(bullet) {
-   bullets.push(bullet);
+    bullets.push(bullet);
 
-   const x = bullet.x + (bullet.noiseOffsetX - noiseOffsetX) * 500;
-   const y = bullet.y + (bullet.noiseOffsetY - noiseOffsetY) * 500;
+    const x = bullet.x + (bullet.noiseOffsetX - noiseOffsetX) * 500;
+    const y = bullet.y + (bullet.noiseOffsetY - noiseOffsetY) * 500;
 
-   /* Outside of view screen - no need to draw */
-   if( x < 0 || x > width || y < 0 || y > height) {
-       return;
-   }
+    /* Outside of view screen - no need to draw */
+    if (x < 0 || x > width || y < 0 || y > height) {
+        return;
+    }
 
-   if(bullet.type == 2) {
-      bulletAudio2.play();
-   } else {
-      bulletAudio.play();
-   }
-   
+    if (gameWithSound) {
+        if (bullet.type == 2) {
+            bulletSound2.play();
+        } else {
+            bulletSound.play();
+        }
+    }
+
 
 }
 
 window.addEnemy = function addEnemy(data) {
-    console.log("Enemy added "+JSON.stringify(data));
+    console.log("Enemy added " + JSON.stringify(data));
     enemies[data.id] = data;
 }
 
@@ -82,7 +96,7 @@ window.setEnemies = function setEnemies(data) {
     console.log("Setting enemies");
     enemies = data;
 }
- 
+
 window.clearEnemy = function clearEnemy(data) {
     delete enemies[data.id];
 }
@@ -92,7 +106,7 @@ window.otherBulletClear = function otherBulletClear(data) {
         let bullet = bullets[i];
 
         // Compute the noise value.
-        if(bullets.id == data.id) {
+        if (bullets.id == data.id) {
             bullets.splice(i, 1);
         }
     }
@@ -103,16 +117,16 @@ window.clearOtherShip = function clearOtherShip(id) {
 }
 
 window.otherShip = function otherShip(data) {
-   otherShips[data.id] = data;
+    otherShips[data.id] = data;
 }
 
 window.otherParticles = function otherParticles(data) {
 
     for (let i = 0; i < data.length; i++) {
         let d = data[i];
-        d.x  += ((d.noiseOffsetX - noiseOffsetX) * 500);
+        d.x += ((d.noiseOffsetX - noiseOffsetX) * 500);
         d.y += ((d.noiseOffsetY - noiseOffsetY) * 500);
-        
+
         particles.push(d);
     }
 }
@@ -195,8 +209,8 @@ function draw_background(shipCoordinates) {
             // Compute the noise value.
             if (noise(nx, ny) > 0.5) {
                 stroke(1);
-                if(x > (width / 2 - 30) && x < (width / 2 + 30) && y > (height / 2 - 30) && y < (height / 2) + 30) {
-                    if(!game_state && crashDetection(shipCoordinates, x, y, 5)) {
+                if (x > (width / 2 - 30) && x < (width / 2 + 30) && y > (height / 2 - 30) && y < (height / 2) + 30) {
+                    if (!game_state && crashDetection(shipCoordinates, x, y, 5)) {
                         game_state = CRASH_START;
                         continue;
                     }
@@ -204,7 +218,7 @@ function draw_background(shipCoordinates) {
 
                 circle(x, y, 5);
 
-                
+
             }
         }
     }
@@ -213,12 +227,12 @@ function draw_background(shipCoordinates) {
 function maybeFireBullet() {
     let now = Date.now();
 
-    if(lastBulletFired + 300 > now) {
+    if (lastBulletFired + 300 > now) {
         return;
     }
     lastBulletFired = now;
 
-    let offset = createVector(0,-22); // Offset for the tip of ship.
+    let offset = createVector(0, -22); // Offset for the tip of ship.
     offset.rotate(angle); // Rotate the offset vector based on the ship's angle
 
     let bullet = {
@@ -228,9 +242,12 @@ function maybeFireBullet() {
         y_speed: speed_y * 500 + (maxAcceleration * 6 * 500 * sin(angle - PI / 2)),
         noiseOffsetX: noiseOffsetX,
         noiseOffsetY: noiseOffsetY,
-        id: nick+now
+        id: nick + now
     }
-    shootSound.play();
+    if(gameWithSound) {
+        shootSound.play();
+    }
+    
     bullets.push(bullet);
     sendBulletUpdate(bullet);
 }
@@ -241,7 +258,7 @@ function addParticles() {
         let offset = createVector(-10 + random(20), 17); // Offset for the particles below the ship
         offset.rotate(angle); // Rotate the offset vector based on the ship's angle
 
-        let angelToUse = angle + ( (10 - random(0, 20) ) / (2.0 * PI));
+        let angelToUse = angle + ((10 - random(0, 20)) / (2.0 * PI));
 
         let particle = {
             x: width / 2 + offset.x, // Start at the center of the screen with offset
@@ -251,21 +268,21 @@ function addParticles() {
             time_to_live: 70, // Initial alpha value for fading out
             noiseOffsetX: noiseOffsetX,
             noiseOffsetY: noiseOffsetY,
-            
+
 
         };
         newParticles.push(particle);
-        particles.push(particle);    
+        particles.push(particle);
     }
 
     sendParticleUpdate(newParticles);
 }
 
 function checkIfHitEnemy(bullet) {
-    for(id in enemies) {
+    for (id in enemies) {
         let enemy = enemies[id];
 
-        if(!enemy.alive) {
+        if (!enemy.alive) {
             continue;
         }
 
@@ -277,14 +294,17 @@ function checkIfHitEnemy(bullet) {
 
         let distance = dist(bulletX, bulletY, enemyX, enemyY);
 
-        if(distance < 20) {
-            delete enemies[id];''
+        if (distance < 20) {
+            delete enemies[id]; ''
             score++;
             updateScore(score);
 
             sendClearEnemy(enemy);
-            makeExplosion(enemyX,enemyY);
-            explosionSound.play();
+            makeExplosion(enemyX, enemyY);
+            if(gameWithSound) {
+                explosionSound.play();
+            }
+            
             return 1;
         }
     }
@@ -307,30 +327,30 @@ function drawBullets(shipCoordinates) {
         if (noise(nx, ny) > 0.5) {
             bullets.splice(i, 1);
             sendBulletClear(bullet);
-            continue; 
+            continue;
         }
 
         const x = bullet.x + (bullet.noiseOffsetX - noiseOffsetX) * 500;
         const y = bullet.y + (bullet.noiseOffsetY - noiseOffsetY) * 500;
 
         /* Outside of view screen - no need to draw */
-        if( x < 0 || x > width || y < 0 || y > height) {
+        if (x < 0 || x > width || y < 0 || y > height) {
             continue;
         }
 
-        if(x > (width / 2 - 30) && x < (width / 2 + 30) && y > (height / 2 - 30) && y < (height / 2) + 30) {
-            if(!game_state && crashDetection(shipCoordinates, x, y, 2)) {
+        if (x > (width / 2 - 30) && x < (width / 2 + 30) && y > (height / 2 - 30) && y < (height / 2) + 30) {
+            if (!game_state && crashDetection(shipCoordinates, x, y, 2)) {
                 game_state = CRASH_START;
                 bullets.splice(i, 1);
-                continue; 
+                continue;
             }
         }
 
-        if(bullet.id && bullet.id.startsWith && bullet.id.startsWith(nick)) {
-            if(checkIfHitEnemy(bullet)) {
+        if (bullet.id && bullet.id.startsWith && bullet.id.startsWith(nick)) {
+            if (checkIfHitEnemy(bullet)) {
                 bullets.splice(i, 1);
                 sendBulletClear(bullet);
-                continue; 
+                continue;
             }
         }
 
@@ -342,10 +362,10 @@ function drawBullets(shipCoordinates) {
 }
 
 function drawEnemies() {
-    for(id in enemies) {
+    for (id in enemies) {
         let enemy = enemies[id];
 
-        if(!enemy.alive) {
+        if (!enemy.alive) {
             continue;
         }
 
@@ -353,17 +373,17 @@ function drawEnemies() {
         let centerY = (enemy.y - noiseOffsetY) * 500;
 
         /* Outside of view screen - no need to draw */
-        if(centerX < -20 || centerX > width+20 || centerY < -20 || centerY > height+20) {
+        if (centerX < -20 || centerX > width + 20 || centerY < -20 || centerY > height + 20) {
             continue;
         }
 
-                
+
         // Set up the circle properties
         let circleDiameter = 20;
         let circleRadius = circleDiameter / 2;
 
 
-        if(enemy.type == 2) {
+        if (enemy.type == 2) {
             drawMobType2(centerX, centerY, circleDiameter, circleRadius);
         } else {
             drawMobType1(centerX, centerY, circleDiameter, circleRadius);
@@ -387,11 +407,11 @@ function drawMobType2(centerX, centerY, circleDiameter, circleRadius) {
 
     beginShape();
     while (radius <= maxRadius) {
-      let x = centerX + radius * cos(angle);
-      let y = centerY + radius * sin(angle);
-      vertex(x, y);
-      angle += 0.1;
-      radius = angle / TWO_PI * 2; // Increase radius slowly
+        let x = centerX + radius * cos(angle);
+        let y = centerY + radius * sin(angle);
+        vertex(x, y);
+        angle += 0.1;
+        radius = angle / TWO_PI * 2; // Increase radius slowly
     }
     endShape();
     stroke(1);
@@ -440,7 +460,7 @@ function drawParticles() {
             particles.splice(i, 1);
         }
     }
-    
+
     fill(255);
 }
 
@@ -470,18 +490,18 @@ function drawShip() {
     let y_0 = transform['f'];
     let x_1 = transform['a'] + transform['e'];
     let y_1 = transform['b'] + transform['f'];
-    let media_per_unit = dist(x_0,y_0, x_1, y_1);
+    let media_per_unit = dist(x_0, y_0, x_1, y_1);
 
     return [{
-        x: ((transform.a * 0 + transform.c * -20 + transform.e) / media_per_unit) ,
-        y: ((transform.b * 0 + transform.d * -20 + transform.f) / media_per_unit) 
-    },{
+        x: ((transform.a * 0 + transform.c * -20 + transform.e) / media_per_unit),
+        y: ((transform.b * 0 + transform.d * -20 + transform.f) / media_per_unit)
+    }, {
         x: ((transform.a * -15 + transform.c * 15 + transform.e) / media_per_unit),
         y: ((transform.b * -15 + transform.d * 15 + transform.f) / media_per_unit)
     },
     {
-        x: ((transform.a * 15 + transform.c * 15 + transform.e) / media_per_unit) ,
-        y: ((transform.b * 15 + transform.d * 15 + transform.f) / media_per_unit) 
+        x: ((transform.a * 15 + transform.c * 15 + transform.e) / media_per_unit),
+        y: ((transform.b * 15 + transform.d * 15 + transform.f) / media_per_unit)
     }];
 }
 
@@ -515,29 +535,29 @@ function drawOneShip(shipX, shipY, shipAngle, col) {
     return transform;
 }
 
-function makeExplosion(x,y) {
+function makeExplosion(x, y) {
     let newParticles = [];
-    for(let i = 0; i < 200; i++) {
-        let angelToUse = random(1,360);
+    for (let i = 0; i < 200; i++) {
+        let angelToUse = random(1, 360);
 
         let p = {
-            x: x - 5 + random(1, 10), 
-            y: y - 5 + random(1, 10), 
-            x_speed: random(1,10) * cos(angelToUse - PI / 2),
-            y_speed: random(1,10) * sin(angelToUse - PI / 2),
-            time_to_live: 30+random(1, 20)
+            x: x - 5 + random(1, 10),
+            y: y - 5 + random(1, 10),
+            x_speed: random(1, 10) * cos(angelToUse - PI / 2),
+            y_speed: random(1, 10) * sin(angelToUse - PI / 2),
+            time_to_live: 30 + random(1, 20)
         }
         particles.push(p);
         newParticles.push(p);
     }
     sendParticleUpdate(newParticles);
- }
+}
 
 function gameOn() {
     game_state = 0;
 }
 
- function restartAtStart() {
+function restartAtStart() {
     noiseOffsetX = 0;
     noiseOffsetY = 0;
     game_state = START_SHIELD;
@@ -546,7 +566,7 @@ function gameOn() {
     speed_y = 0;
 
     setTimeout(gameOn, 5000);
- }
+}
 
 function draw() {
     clear();
@@ -555,19 +575,22 @@ function draw() {
     drawParticles();
     drawEnemies();
 
-    if(game_state == CRASH_START) {
+    if (game_state == CRASH_START) {
         game_state = CRASH_GOING_ON;
         angle = 0;
         speed_x = 0;
         speed_y = 0;
         score -= 2;
         updateScore(score);
-        makeExplosion(width/2, height/2);
-        shipExplosionSound.play();
+        makeExplosion(width / 2, height / 2);
+        if(gameWithSound) {
+            shipExplosionSound.play();
+        }
+        
         setTimeout(restartAtStart, 4000);
-    } 
+    }
 
-    if(game_state == CRASH_GOING_ON) {
+    if (game_state == CRASH_GOING_ON) {
         draw_background([]);
         drawBullets([]);
         return;
@@ -580,21 +603,21 @@ function draw() {
         drawBullets(shipCoordinates);
     }
 
-    
+
 
     // Update the position based on the current speed and angle
     noiseOffsetX += speed_x;
-    noiseOffsetY += speed_y; 
+    noiseOffsetY += speed_y;
 
-    if(keyIsDown(RIGHT_ARROW) || keyIsDown(70)) {
-        angel_acceleration += 0.05  ;
-        if(angel_acceleration > MAX_ANGLE_ACCELERATION) {
+    if (keyIsDown(RIGHT_ARROW) || keyIsDown(70)) {
+        angel_acceleration += 0.05;
+        if (angel_acceleration > MAX_ANGLE_ACCELERATION) {
             angel_acceleration = MAX_ANGLE_ACCELERATION;
         }
         angle += angel_acceleration;
-    } else if(keyIsDown(LEFT_ARROW)  || keyIsDown(83)) {
+    } else if (keyIsDown(LEFT_ARROW) || keyIsDown(83)) {
         angel_acceleration -= 0.05;
-        if(angel_acceleration < -MAX_ANGLE_ACCELERATION) {
+        if (angel_acceleration < -MAX_ANGLE_ACCELERATION) {
             angel_acceleration = -MAX_ANGLE_ACCELERATION;
         }
         angle += angel_acceleration;
@@ -603,30 +626,35 @@ function draw() {
     }
 
     /* z key or j*/
-    if(keyIsDown(90) || keyIsDown(74)) {
+    if (keyIsDown(90) || keyIsDown(74)) {
         maybeFireBullet();
     }
 
     /** Up arrow or e */
-    if((game_state == 0 || game_state == 1) && (keyIsDown(UP_ARROW) || keyIsDown(69))) {
+    if ((game_state == 0 || game_state == 1) && (keyIsDown(UP_ARROW) || keyIsDown(69))) {
         currentAcceleration += maxAcceleration / 30;
-        if(currentAcceleration > maxAcceleration) {
+        if (currentAcceleration > maxAcceleration) {
             currentAcceleration = maxAcceleration;
         }
-        if(!thrustSound.isPlaying()) {
-            thrustSound.play();
-            thrustSound.setVolume(0.5); 
-        } else {
-            thrustSound.amp(0.5, 0.2);
+
+        if(gameWithSound) {
+            if (!thrustSound.isPlaying()) {
+                thrustSound.play();
+                thrustSound.setVolume(0.5);
+            } else {
+                thrustSound.amp(0.5, 0.2);
+            }    
         }
 
         addParticles();
 
-        speed_x += currentAcceleration * cos(angle-(3.14/2));
-        speed_y += currentAcceleration * sin(angle-(3.14/2));;
+        speed_x += currentAcceleration * cos(angle - (3.14 / 2));
+        speed_y += currentAcceleration * sin(angle - (3.14 / 2));;
     } else {
-        thrustSound.amp(0, 0.2);
-         // Fade out over 0.5 seconds
+        if(gameWithSound) {
+            thrustSound.amp(0, 0.2);
+        }
+        
     }
 
     /* Gravity */

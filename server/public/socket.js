@@ -1,5 +1,3 @@
-const queryString = window.location.search;
-const urlParams = new URLSearchParams(queryString);
 const nick = urlParams.get('nick');
 let server_address = urlParams.get('server');
 
@@ -10,7 +8,6 @@ if(nick) {
     } else {
         socket = io('/');
     }
-   
 }
 
 

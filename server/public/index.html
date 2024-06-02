@@ -28,10 +28,12 @@
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             width: calc(100% - 22px);
         }
+   
         input[type="submit"] {
+            margin-top: 20px;
             padding: 10px 20px;
             border: none;
             border-radius: 4px;
@@ -50,6 +52,7 @@
         <h1>Noisetroid</h1>
         <form id="nickForm">
             <input type="text" id="nick" name="nick" placeholder="Enter nickname" autofocus>
+            <div><input type="checkbox" id="audio" name="audio" checked="checked"> Enable Audio</div>
             <input type="submit" value="Start Game">
         </form>
         <br/>
@@ -59,7 +62,15 @@
         document.getElementById('nickForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const nick = document.getElementById('nick').value;
-            window.location.href = `game.html?nick=${encodeURIComponent(nick)}`;
+            const audio = document.getElementById('audio').checked;
+
+            if(audio) {
+                window.location.href = `game.html?audio=1&nick=${encodeURIComponent(nick)}`;    
+            } else {
+                window.location.href = `game.html?nick=${encodeURIComponent(nick)}`;
+            }
+
+            
         });
     </script>
 </body>
