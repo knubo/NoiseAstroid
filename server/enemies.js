@@ -25,6 +25,11 @@ function shoot(io) {
         if(sobj.alive == 0) {
             continue;
         }
+        if(p5Instance.random(1, 10) > 5) {
+            continue;
+        }
+    
+
         let angle = 0;
 
         if(sobj.type == 2) {
@@ -41,7 +46,8 @@ function shoot(io) {
             y_speed: (0.004 * 3 * 500 * Math.sin( angle * (p5Instance.PI / 180) )),
             noiseOffsetX: sobj.x,
             noiseOffsetY: sobj.y,
-            spawn:sobj,  
+            spawn:sobj,
+            type: sobj.type
         }
         io.emit('bulletUpdate', bullet);
     }

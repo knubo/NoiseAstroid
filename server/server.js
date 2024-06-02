@@ -26,7 +26,7 @@ function triggerShoot() {
     shoot(io);
 }
 
-setInterval(triggerShoot, 1000);
+setInterval(triggerShoot, 500);
 
 let activePlayers = {}
 

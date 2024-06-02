@@ -25,6 +25,7 @@ let thrustSound;
 let shootSound;
 let explosionSound;
 let shipExplosionSound;
+let bulletAudio;
 
 const START_SHIELD = 1;
 const CRASH_START = 2;
@@ -37,7 +38,13 @@ function preload() {
     shootSound = loadSound('audio/sci-fi-cannon-firing-whoosh-after-fire-low-pitch-slight-reverb-204400.mp3');
     explosionSound = loadSound('audio/explosion-drop-6879.mp3');
     shipExplosionSound = loadSound('audio/large-explosion-1-43636.mp3');
+    bulletAudio = loadSound('audio/one-shot-kickdrum-very-dirty-113410.mp3');
+    bulletAudio2 = loadSound('audio/weapon01-47681.mp3');
+
+    bulletAudio.setVolume(0.5);
+    bulletAudio2.setVolume(0.5);
 }
+
 function setup() {
     createCanvas(windowWidth, windowHeight);
     frameRate(30);
@@ -46,8 +53,24 @@ function setup() {
     thrustSound.setLoop(true); // Set the sound to loop
 }
 
-window.otherBullet = function otherBullet(data) {
-   bullets.push(data);
+window.otherBullet = function otherBullet(bullet) {
+   bullets.push(bullet);
+
+   const x = bullet.x + (bullet.noiseOffsetX - noiseOffsetX) * 500;
+   const y = bullet.y + (bullet.noiseOffsetY - noiseOffsetY) * 500;
+
+   /* Outside of view screen - no need to draw */
+   if( x < 0 || x > width || y < 0 || y > height) {
+       return;
+   }
+
+   if(bullet.type == 2) {
+      bulletAudio2.play();
+   } else {
+      bulletAudio.play();
+   }
+   
+
 }
 
 window.addEnemy = function addEnemy(data) {
