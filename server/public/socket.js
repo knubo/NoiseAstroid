@@ -70,6 +70,10 @@ if(socket) {
     });   
     socket.on('bulletUpdate', (data)  => {
         otherBullet(data);
+        if(data.spawn) {
+            addEnemy(data.spawn);
+        }
+        
     });
     socket.on('bulletClear', (data)  => {
         otherBulletClear(data);

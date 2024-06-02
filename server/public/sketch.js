@@ -228,6 +228,10 @@ function checkIfHitEnemy(bullet) {
     for(id in enemies) {
         let enemy = enemies[id];
 
+        if(!enemy.alive) {
+            continue;
+        }
+
         let enemyX = (enemy.x - noiseOffsetX) * 500;
         let enemyY = (enemy.y - noiseOffsetY) * 500;
 
@@ -302,14 +306,72 @@ function drawEnemies() {
             continue;
         }
 
-        let x = (enemy.x - noiseOffsetX) * 500;
-        let y = (enemy.y - noiseOffsetY) * 500;
-        
-        fill("red");
-        circle(x, y, 20);
+        let centerX = (enemy.x - noiseOffsetX) * 500;
+        let centerY = (enemy.y - noiseOffsetY) * 500;
+
+                
+        // Set up the circle properties
+        let circleDiameter = 20;
+        let circleRadius = circleDiameter / 2;
+
+
+        if(enemy.type == 2) {
+            drawMobType2(centerX, centerY, circleDiameter, circleRadius);
+        } else {
+            drawMobType1(centerX, centerY, circleDiameter, circleRadius);
+        }
+
+        stroke(1);
         fill(255);
 
     }
+}
+
+function drawMobType2(centerX, centerY, circleDiameter, circleRadius) {
+
+    // Draw the spiral
+    stroke(0); // Black outline
+    noFill(); // No fill for the spiral
+
+    let angle = 0;
+    let radius = 0;
+    let maxRadius = circleRadius;
+
+    beginShape();
+    while (radius <= maxRadius) {
+      let x = centerX + radius * cos(angle);
+      let y = centerY + radius * sin(angle);
+      vertex(x, y);
+      angle += 0.1;
+      radius = angle / TWO_PI * 2; // Increase radius slowly
+    }
+    endShape();
+    stroke(1);
+}
+
+function drawMobType1(centerX, centerY, circleDiameter, circleRadius) {
+    stroke(0); // Black outline
+    noFill(); // No fill for the circle
+    ellipse(centerX, centerY, circleDiameter, circleDiameter);
+
+    // Draw the firing indicators
+    // Up direction
+    stroke('red');
+    line(centerX, centerY - circleRadius, centerX, centerY);
+
+    // Down direction
+    stroke('blue');
+    line(centerX, centerY + circleRadius, centerX, centerY);
+
+    // Left direction
+    stroke('green');
+    line(centerX - circleRadius, centerY, centerX, centerY);
+
+    // Right direction
+    stroke('yellow');
+    line(centerX + circleRadius, centerY, centerX, centerY);
+
+    stroke(1);
 }
 
 function drawParticles() {
@@ -475,15 +537,13 @@ function draw() {
     noiseOffsetX += speed_x;
     noiseOffsetY += speed_y; 
 
-
-
-    if(keyIsDown(RIGHT_ARROW)) {
+    if(keyIsDown(RIGHT_ARROW) || keyIsDown(70)) {
         angel_acceleration += 0.05  ;
         if(angel_acceleration > MAX_ANGLE_ACCELERATION) {
             angel_acceleration = MAX_ANGLE_ACCELERATION;
         }
         angle += angel_acceleration;
-    } else if(keyIsDown(LEFT_ARROW)) {
+    } else if(keyIsDown(LEFT_ARROW)  || keyIsDown(83)) {
         angel_acceleration -= 0.05;
         if(angel_acceleration < -MAX_ANGLE_ACCELERATION) {
             angel_acceleration = -MAX_ANGLE_ACCELERATION;
@@ -493,12 +553,13 @@ function draw() {
         angel_acceleration = 0;
     }
 
-    /* z key */
-    if(keyIsDown(90)) {
+    /* z key or j*/
+    if(keyIsDown(90) || keyIsDown(74)) {
         maybeFireBullet();
     }
 
-    if(keyIsDown(UP_ARROW)) {
+    /** Up arrow or e */
+    if(keyIsDown(UP_ARROW) || keyIsDown(69)) {
         currentAcceleration += maxAcceleration / 30;
         if(currentAcceleration > maxAcceleration) {
             currentAcceleration = maxAcceleration;

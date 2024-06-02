@@ -64,7 +64,6 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('bulletUpdate', data);
     });
 
-
     socket.on('bulletClear', (data) => {
         data.id = socket.id;
         // Broadcast the location update to all other connected clients

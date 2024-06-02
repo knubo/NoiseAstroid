@@ -25,15 +25,23 @@ function shoot(io) {
         if(sobj.alive == 0) {
             continue;
         }
-        const angle = Math.floor(p5Instance.random(0,3)) * 90;
+        let angle = 0;
 
+        if(sobj.type == 2) {
+            sobj.angle += 10;
+            angle = sobj.angle;
+        } else {
+            angle = Math.floor(p5Instance.random(0,3)) * 90;
+        }
+        
         let bullet = {
             x: 0,
             y: 0,
             x_speed: (0.004 * 3 * 500 * Math.cos( angle * (p5Instance.PI / 180) )),
             y_speed: (0.004 * 3 * 500 * Math.sin( angle * (p5Instance.PI / 180) )),
             noiseOffsetX: sobj.x,
-            noiseOffsetY: sobj.y  
+            noiseOffsetY: sobj.y,
+            spawn:sobj,  
         }
         io.emit('bulletUpdate', bullet);
     }
@@ -63,7 +71,7 @@ function spawn(socket, x, y) {
                     continue;
                 }
 
-                let sobj = {"x": i, "y": j, id: spawnId, "alive":1};
+                let sobj = {"x": i, "y": j, angle:0, id: spawnId, "alive":1, "type": Math.floor(value * 1000) % 3};
 
                 spawned[spawnId] = sobj;
                 //console.log("Spawning id is:"+spawnId + "sobj: "+JSON.stringify(sobj)+" x is : "+x+" y is:"+y+" i is: "+i+" j is: "+j);
