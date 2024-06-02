@@ -21,17 +21,29 @@ let bullets = [];
 
 let enemies = {};
 
+let thrustSound;
+let shootSound;
+let explosionSound;
+let shipExplosionSound;
+
 const START_SHIELD = 1;
 const CRASH_START = 2;
 const CRASH_GOING_ON = 3;
 
 let game_state = 0;
 
+function preload() {
+    thrustSound = loadSound('audio/loopingthrust-95548.mp3');
+    shootSound = loadSound('audio/sci-fi-cannon-firing-whoosh-after-fire-low-pitch-slight-reverb-204400.mp3');
+    explosionSound = loadSound('audio/explosion-drop-6879.mp3');
+    shipExplosionSound = loadSound('audio/large-explosion-1-43636.mp3');
+}
 function setup() {
     createCanvas(windowWidth, windowHeight);
     frameRate(30);
     noiseSeed(1);
     restartAtStart();
+    thrustSound.setLoop(true); // Set the sound to loop
 }
 
 window.otherBullet = function otherBullet(data) {
@@ -163,6 +175,7 @@ function draw_background(shipCoordinates) {
                 if(x > (width / 2 - 30) && x < (width / 2 + 30) && y > (height / 2 - 30) && y < (height / 2) + 30) {
                     if(!game_state && crashDetection(shipCoordinates, x, y, 5)) {
                         game_state = CRASH_START;
+                        continue;
                     }
                 }
 
@@ -194,6 +207,7 @@ function maybeFireBullet() {
         noiseOffsetY: noiseOffsetY,
         id: nick+now
     }
+    shootSound.play();
     bullets.push(bullet);
     sendBulletUpdate(bullet);
 }
@@ -247,6 +261,7 @@ function checkIfHitEnemy(bullet) {
 
             sendClearEnemy(enemy);
             makeExplosion(enemyX,enemyY);
+            explosionSound.play();
             return 1;
         }
     }
@@ -525,6 +540,7 @@ function draw() {
         score -= 2;
         updateScore(score);
         makeExplosion(width/2, height/2);
+        shipExplosionSound.play();
         setTimeout(restartAtStart, 4000);
     } 
 
@@ -569,16 +585,25 @@ function draw() {
     }
 
     /** Up arrow or e */
-    if(keyIsDown(UP_ARROW) || keyIsDown(69)) {
+    if((game_state == 0 || game_state == 1) && (keyIsDown(UP_ARROW) || keyIsDown(69))) {
         currentAcceleration += maxAcceleration / 30;
         if(currentAcceleration > maxAcceleration) {
             currentAcceleration = maxAcceleration;
+        }
+        if(!thrustSound.isPlaying()) {
+            thrustSound.play();
+            thrustSound.setVolume(0.5); 
+        } else {
+            thrustSound.amp(0.5, 0.2);
         }
 
         addParticles();
 
         speed_x += currentAcceleration * cos(angle-(3.14/2));
         speed_y += currentAcceleration * sin(angle-(3.14/2));;
+    } else {
+        thrustSound.amp(0, 0.2);
+         // Fade out over 0.5 seconds
     }
 
     /* Gravity */
