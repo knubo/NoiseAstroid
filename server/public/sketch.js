@@ -27,6 +27,8 @@ let explosionSound;
 let shipExplosionSound;
 let bulletSound, bulletSound2, bulletSound3;
 
+let energy = 8000;
+
 const START_SHIELD = 1;
 const CRASH_START = 2;
 const CRASH_GOING_ON = 3;
@@ -48,9 +50,11 @@ function preload() {
         bulletSound2 = loadSound('audio/hat-12-36721.mp3');
         bulletSound3 = loadSound('audio/mechrockets-36267.mp3');
         ambienSound = loadSound('audio/ambience-sounds-8-15136.mp3');
+        rechargeSound = loadSound('audio/electric-sparks-6130.mp3');
 
         bulletSound.setVolume(0.5);
         bulletSound2.setVolume(0.5);
+
     }
 
 }
@@ -141,6 +145,22 @@ window.otherParticles = function otherParticles(data) {
     }
 }
 
+function drawEnergy(amount) {
+    energy -= amount;
+
+    if (energy > 10000) {
+        energy = 10000;
+    }
+
+    if (energy < 0) {
+        energy = 0;
+    }
+
+    updateEnergy(energy);
+
+    return energy != 0;
+}
+
 // Function to calculate the distance between two points
 function distance(x1, y1, x2, y2) {
     return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
@@ -206,6 +226,47 @@ function crashDetection(shipCoordinates, circleX, circleY, radius) {
     return false; // No collision detected
 }
 
+function drawBattery(centerX, centerY) {
+
+    background(255, 255, 255, 0); // Transparent background
+
+    let batteryWidth = 20;
+    let batteryHeight = 40;
+
+    // Draw the battery body
+    stroke(0); // Black outline
+    fill(150); // Grey fill
+    rect(centerX - batteryWidth / 2, centerY - batteryHeight / 2, batteryWidth, batteryHeight);
+
+    // Draw the battery positive terminal
+    fill(0); // Black fill for the terminal
+    rect(centerX - batteryWidth / 4, centerY - batteryHeight / 2 - 5, batteryWidth / 2, 5);
+
+    // Draw the blue lightning arrow
+    fill(0, 0, 255); // Blue fill
+    beginShape();
+    vertex(centerX - 4, centerY - 8);
+    vertex(centerX + 2, centerY - 8);
+    vertex(centerX - 2, centerY);
+    vertex(centerX + 4, centerY);
+    vertex(centerX - 2, centerY + 8);
+    vertex(centerX - 2, centerY + 2);
+    vertex(centerX - 8, centerY + 2);
+    endShape(CLOSE);
+    stroke(1);
+    fill(255);
+}
+
+function rechargeCraft() {
+    if (gameWithSound && !rechargeSound.isPlaying()) {
+        rechargeSound.play();
+        rechargeSound.setVolume(0.1);
+    }
+
+    drawEnergy(-5);
+
+}
+
 function draw_background(shipCoordinates) {
 
     // Iterate from top to bottom.
@@ -216,8 +277,9 @@ function draw_background(shipCoordinates) {
             let nx = (noiseScale * x) + noiseOffsetX;
             let ny = (noiseScale * y) + noiseOffsetY;
 
+            const noiseValue = noise(nx, ny);
             // Compute the noise value.
-            if (noise(nx, ny) > 0.5) {
+            if (noiseValue > 0.5) {
                 stroke(1);
                 if (x > (width / 2 - 30) && x < (width / 2 + 30) && y > (height / 2 - 30) && y < (height / 2) + 30) {
                     if (!game_state && crashDetection(shipCoordinates, x, y, 5)) {
@@ -227,8 +289,24 @@ function draw_background(shipCoordinates) {
                 }
 
                 circle(x, y, 5);
+            } else {
+                const xcheck = (Math.floor(noiseOffsetX * 500) + x) % 3000;
+                const ycheck = (Math.floor(noiseOffsetY * 500) + y) % 3000;
 
+                if (abs(xcheck) < 11 && abs(ycheck) < 11) {
+                    drawBattery(x, y);
 
+                    if (x > (width / 2 - 70) && x < (width / 2 + 70) && y > (height / 2 - 70) && y < (height / 2) + 70) {
+                        stroke("blue");
+                        line(x, y, width / 2, height / 2)
+                        stroke(1);
+                        rechargeCraft();
+                    } else {
+                        if (gameWithSound) {
+                            rechargeSound.stop();
+                        }
+                    }
+                }
             }
         }
     }
@@ -240,6 +318,11 @@ function maybeFireBullet() {
     if (lastBulletFired + 300 > now) {
         return;
     }
+
+    if (!drawEnergy(50)) {
+        return;
+    }
+
     lastBulletFired = now;
 
     let offset = createVector(0, -22); // Offset for the tip of ship.
@@ -321,6 +404,12 @@ function checkIfHitEnemy(bullet) {
     return 0;
 }
 
+function atCenter(x, y) {
+    return x < (width / 2) + 5 && x > (width / 2) + 5 && y < (height / 2) + 5 && y > (height / 2) + 5;
+}
+
+
+
 function drawBullets(shipCoordinates) {
     for (let i = bullets.length - 1; i >= 0; i--) {
         let bullet = bullets[i];
@@ -349,7 +438,7 @@ function drawBullets(shipCoordinates) {
         }
 
         if (x > (width / 2 - 30) && x < (width / 2 + 30) && y > (height / 2 - 30) && y < (height / 2) + 30) {
-            if (!game_state && crashDetection(shipCoordinates, x, y, 2)) {
+            if (!game_state && crashDetection(shipCoordinates, x, y, 2) || atCenter(x, y)) {
                 game_state = CRASH_START;
                 bullets.splice(i, 1);
                 continue;
@@ -597,6 +686,7 @@ function restartAtStart() {
     angle = 0;
     speed_x = 0;
     speed_y = 0;
+    energy = 8000;
 
     setTimeout(gameOn, 5000);
 }
@@ -664,7 +754,7 @@ function draw() {
     }
 
     /** Up arrow or e */
-    if ((game_state == 0 || game_state == 1) && (keyIsDown(UP_ARROW) || keyIsDown(69))) {
+    if ((game_state == 0 || game_state == 1) && (keyIsDown(UP_ARROW) || keyIsDown(69)) && drawEnergy(1)) {
         currentAcceleration += maxAcceleration / 30;
         if (currentAcceleration > maxAcceleration) {
             currentAcceleration = maxAcceleration;
@@ -692,6 +782,10 @@ function draw() {
 
     /* Gravity */
     speed_y += 0.0001;
+
+    if(!energy) {
+        speed_y += 0.001;
+    }
 
     /* Air resistance */
     speed_x -= (speed_x / 20);

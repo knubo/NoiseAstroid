@@ -24,6 +24,10 @@ window.clearScore = function clearScore(id) {
     delete players[id];
 }
 
+window.updateEnergy = function updateEnergy(value) {
+    document.getElementById('energyValue').innerHTML = value;
+}
+
 window.updatePlayerScore = function updatePlayerScore(id, nick, score) {
 
     if(nick) {

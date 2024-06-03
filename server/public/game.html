@@ -34,12 +34,27 @@
         .floating-div li span {
             font-weight: bold;
         }
+        .energy-div {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            z-index: 1000;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
     <div class="floating-div">
         <ul id="player_list">
         </ul>
+    </div>
+
+    <div class="energy-div">
+        Energy: <span id="energyValue">1000</span>
     </div>
 
     <script>
