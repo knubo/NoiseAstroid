@@ -91,7 +91,7 @@ function spawn(socket, x, y) {
             let value = p5Instance.noise( i,  j);
 
             if(value < 0.401) {
-                const spawnId = Math.floor( i * 3) + "#" + Math.floor(j * 3);
+                const spawnId = Math.floor( i ) + "#" + Math.floor(j );
                 
                 if(spawned[spawnId]) {
                     continue;
