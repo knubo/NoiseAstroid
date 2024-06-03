@@ -28,29 +28,49 @@ function shoot(io) {
         if(p5Instance.random(1, 10) > 5) {
             continue;
         }
-    
 
         let angle = 0;
 
-        if(sobj.type == 2) {
+        if(sobj.type == 3) {
+            angle = (Math.floor(p5Instance.random(0,4)) * 90) + 45;
+        } else if(sobj.type == 2) {
             sobj.angle += 10;
             angle = sobj.angle;
         } else {
-            angle = Math.floor(p5Instance.random(0,3)) * 90;
+            angle = Math.floor(p5Instance.random(0,4)) * 90;
         }
-        
-        let bullet = {
-            x: 0,
-            y: 0,
-            x_speed: (0.004 * 3 * 500 * Math.cos( angle * (p5Instance.PI / 180) )),
-            y_speed: (0.004 * 3 * 500 * Math.sin( angle * (p5Instance.PI / 180) )),
-            noiseOffsetX: sobj.x,
-            noiseOffsetY: sobj.y,
-            spawn:sobj,
-            type: sobj.type
+
+        if(sobj.type == 3) {
+            let bullet = makeBullet(angle, sobj);
+            io.emit('bulletUpdate', bullet);
+
+            bullet.x = bullet.x_speed * 5;
+            bullet.y = bullet.y_speed * 5;
+            io.emit('bulletUpdate', bullet);
+
+            bullet.x = -bullet.x;
+            bullet.y = -bullet.y;
+            io.emit('bulletUpdate', bullet);
+            
+        } else {
+            let bullet = 
+            io.emit('bulletUpdate', makeBullet(angle, sobj));
         }
-        io.emit('bulletUpdate', bullet);
+
     }
+}
+
+function makeBullet(angle, sobj) {
+    return {
+        x: 0,
+        y: 0,
+        x_speed: (0.004 * 3 * 500 * Math.cos(angle * (p5Instance.PI / 180))),
+        y_speed: (0.004 * 3 * 500 * Math.sin(angle * (p5Instance.PI / 180))),
+        noiseOffsetX: sobj.x,
+        noiseOffsetY: sobj.y,
+        spawn: sobj,
+        type: sobj.type
+    };
 }
 
 function clearSpawn(spawn) {
@@ -77,7 +97,7 @@ function spawn(socket, x, y) {
                     continue;
                 }
 
-                let sobj = {"x": i, "y": j, angle:0, id: spawnId, "alive":1, "type": Math.floor(value * 1000) % 3};
+                let sobj = {"x": i, "y": j, angle:0, id: spawnId, "alive":1, "type": Math.floor(value * 1000) % 4};
 
                 spawned[spawnId] = sobj;
                 //console.log("Spawning id is:"+spawnId + "sobj: "+JSON.stringify(sobj)+" x is : "+x+" y is:"+y+" i is: "+i+" j is: "+j);

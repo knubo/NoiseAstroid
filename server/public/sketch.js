@@ -25,7 +25,7 @@ let thrustSound;
 let shootSound;
 let explosionSound;
 let shipExplosionSound;
-let bulletSound;
+let bulletSound, bulletSound2, bulletSound3;
 
 const START_SHIELD = 1;
 const CRASH_START = 2;
@@ -45,7 +45,8 @@ function preload() {
         explosionSound = loadSound('audio/explosion-drop-6879.mp3');
         shipExplosionSound = loadSound('audio/large-explosion-1-43636.mp3');
         bulletSound = loadSound('audio/one-shot-kickdrum-very-dirty-113410.mp3');
-        bulletSound2 = loadSound('audio/weapon01-47681.mp3');
+        bulletSound2 = loadSound('audio/hat-12-36721.mp3');
+        bulletSound3 = loadSound('audio/mechrockets-36267.mp3');
         ambienSound = loadSound('audio/ambience-sounds-8-15136.mp3');
 
         bulletSound.setVolume(0.5);
@@ -60,12 +61,12 @@ function setup() {
     noiseSeed(1);
     restartAtStart();
 
-    if(gameWithSound) {
+    if (gameWithSound) {
         thrustSound.setLoop(true);
         ambienSound.setLoop(true);
         ambienSound.play();
     }
-    
+
 }
 
 window.otherBullet = function otherBullet(bullet) {
@@ -80,10 +81,16 @@ window.otherBullet = function otherBullet(bullet) {
     }
 
     if (gameWithSound) {
-        if (bullet.type == 2) {
-            bulletSound2.play();
-        } else {
-            bulletSound.play();
+        switch (bullet.type) {
+            case 2:
+                bulletSound2.play();
+                break;
+            case 3:
+                bulletSound3.play();
+                break;
+            default:
+                bulletSound.play();
+                break;
         }
     }
 
@@ -247,10 +254,10 @@ function maybeFireBullet() {
         noiseOffsetY: noiseOffsetY,
         id: nick + now
     }
-    if(gameWithSound) {
+    if (gameWithSound) {
         shootSound.play();
     }
-    
+
     bullets.push(bullet);
     sendBulletUpdate(bullet);
 }
@@ -304,10 +311,10 @@ function checkIfHitEnemy(bullet) {
 
             sendClearEnemy(enemy);
             makeExplosion(enemyX, enemyY);
-            if(gameWithSound) {
+            if (gameWithSound) {
                 explosionSound.play();
             }
-            
+
             return 1;
         }
     }
@@ -385,19 +392,42 @@ function drawEnemies() {
         let circleDiameter = 20;
         let circleRadius = circleDiameter / 2;
 
-
-        if (enemy.type == 2) {
-            drawMobType2(centerX, centerY, circleDiameter, circleRadius);
-        } else {
-            drawMobType1(centerX, centerY, circleDiameter, circleRadius);
+        switch (enemy.type) {
+            case 3:
+                drawMobType3(centerX, centerY, circleDiameter, circleRadius);
+                break;
+            case 2:
+                drawMobType2(centerX, centerY, circleDiameter, circleRadius);
+                break;
+            default:
+                drawMobType1(centerX, centerY, circleDiameter, circleRadius);
+                break;
         }
 
         stroke(1);
         fill(255);
-
     }
 }
 
+function drawMobType3(centerX, centerY, circleDiameter, circleRadius) {
+    let points = [
+        { x: centerX, y: centerY - circleRadius }, // Top
+        { x: centerX + circleRadius, y: centerY }, // Right
+        { x: centerX, y: centerY + circleRadius }, // Bottom
+        { x: centerX - circleRadius, y: centerY }  // Left
+    ];
+
+    // Draw the star
+    stroke(0); // Black outline
+    noFill(); // No fill for the star
+
+    // Draw lines connecting the points in a star pattern
+    for (let i = 0; i < points.length; i++) {
+        for (let j = i + 1; j < points.length; j++) {
+            line(points[i].x, points[i].y, points[j].x, points[j].y);
+        }
+    }
+}
 function drawMobType2(centerX, centerY, circleDiameter, circleRadius) {
 
     // Draw the spiral
@@ -586,10 +616,10 @@ function draw() {
         score -= 2;
         updateScore(score);
         makeExplosion(width / 2, height / 2);
-        if(gameWithSound) {
+        if (gameWithSound) {
             shipExplosionSound.play();
         }
-        
+
         setTimeout(restartAtStart, 4000);
     }
 
@@ -640,13 +670,13 @@ function draw() {
             currentAcceleration = maxAcceleration;
         }
 
-        if(gameWithSound) {
+        if (gameWithSound) {
             if (!thrustSound.isPlaying()) {
                 thrustSound.play();
                 thrustSound.setVolume(0.5);
             } else {
                 thrustSound.amp(0.5, 0.2);
-            }    
+            }
         }
 
         addParticles();
@@ -654,10 +684,10 @@ function draw() {
         speed_x += currentAcceleration * cos(angle - (3.14 / 2));
         speed_y += currentAcceleration * sin(angle - (3.14 / 2));;
     } else {
-        if(gameWithSound) {
+        if (gameWithSound) {
             thrustSound.amp(0, 0.2);
         }
-        
+
     }
 
     /* Gravity */
