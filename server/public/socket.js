@@ -43,6 +43,7 @@ window.sendBulletClear = function sendBulletClear(bullet) {
     socket.emit('bulletClear', bullet);
 }
 
+
 window.sendClearEnemy = function sendClearEnemy(enemy) {
     if(!nick) {
         return;
@@ -75,6 +76,7 @@ if(socket) {
     socket.on('bulletClear', (data)  => {
         otherBulletClear(data);
     });
+
 
     socket.on('clearSpawn', (data) => {
         clearEnemy(data);

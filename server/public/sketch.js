@@ -67,7 +67,7 @@ function setup() {
     frameRate(30);
     noiseSeed(1);
     restartAtStart();
-    powerups["Laser"] = 1;
+    powerups["Laser"] = 100;
 
     if (gameWithSound) {
         thrustSound.setLoop(true);
@@ -539,7 +539,7 @@ function drawParticles() {
     fill(255);
 }
 
-function drawOtherShips() {
+function drawOtherShips(shipCoordinates) {
 
     Object.values(otherShips).forEach(value => {
         const rel_x = (value.x - noiseOffsetX) * 500;
@@ -549,6 +549,10 @@ function drawOtherShips() {
         const shipY = value.h + rel_y;
 
         drawOneShip(shipX, shipY, value.direction, value.laser);
+
+        if(game_state == 0 && value.laser && laserHitsTriangle(shipX, shipY, value.direction, shipCoordinates)) {
+            game_state = CRASH_START;
+        }
 
     });
 }
@@ -561,6 +565,10 @@ function drawShip() {
     // Save the current state of the canvas
     let transform = drawOneShip(shipX, shipY, angle, laserOn);
 
+    return transformationToCoordinates(transform);
+}
+
+function transformationToCoordinates(transform) {
     let x_0 = transform['e'];
     let y_0 = transform['f'];
     let x_1 = transform['a'] + transform['e'];
@@ -604,7 +612,7 @@ function drawOneShip(shipX, shipY, shipAngle, laser) {
 
     vertex(0, -20); // Tip of the triangle pointing upwards
 
-    if(laserOn) {
+    if(laser) {
         vertex(0,-800);
         vertex(0,-20);    
     }
@@ -668,7 +676,6 @@ function restartAtStart() {
 function draw() {
     clear();
 
-    drawOtherShips();
     drawParticles();
     drawEnemies();
 
@@ -690,12 +697,14 @@ function draw() {
     if (game_state == CRASH_GOING_ON) {
         draw_background([]);
         drawBullets([]);
+        drawOtherShips([]);
         return;
     } else {
-        sendLocationUpdate(noiseOffsetX, noiseOffsetY, angle, width / 2, height / 2), laserOn;
+        sendLocationUpdate(noiseOffsetX, noiseOffsetY, angle, width / 2, height / 2, laserOn);
 
         let shipCoordinates = drawShip();
 
+        drawOtherShips(shipCoordinates);
         draw_background(shipCoordinates);
         drawBullets(shipCoordinates);
     }

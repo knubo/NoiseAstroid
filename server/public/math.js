@@ -19,7 +19,7 @@ window.lineIntersectsCircle = function lineIntersectsCircle(x1, y1, x2, y2, cx, 
     // Calculate the distance from the circle's center to the line segment
     let dx = x2 - x1;
     let dy = y2 - y1;
-    let fx = x1 - cx;
+    let fx = x1 - cx;   
     let fy = y1 - cy;
 
     let a = dx * dx + dy * dy;
@@ -90,4 +90,51 @@ window.crashDetection = function crashDetection(shipCoordinates, circleX, circle
     }
 
     return false; // No collision detected
+}
+
+function lineIntersectsSegment(px, py, dx, dy, v1, v2) {
+    const x1 = v1.x, y1 = v1.y;
+    const x2 = v2.x, y2 = v2.y;
+
+    const A1 = y2 - y1;
+    const B1 = x1 - x2;
+    const C1 = A1 * x1 + B1 * y1;
+
+    const A2 = dy;
+    const B2 = -dx;
+    const C2 = A2 * px + B2 * py;
+
+    const det = A1 * B2 - A2 * B1;
+
+    if (det === 0) {
+        // Lines are parallel
+        return false;
+    } else {
+        const ix = (B2 * C1 - B1 * C2) / det;
+        const iy = (A1 * C2 - A2 * C1) / det;
+
+        // Check if the intersection point (ix, iy) is on the line segment
+        const minX = Math.min(x1, x2);
+        const maxX = Math.max(x1, x2);
+        const minY = Math.min(y1, y2);
+        const maxY = Math.max(y1, y2);
+
+        return (ix >= minX && ix <= maxX && iy >= minY && iy <= maxY);
+    }
+}
+
+window.laserHitsTriangle = function laserHitsTriangle(px, py, angle, triangle) {
+
+    const directionCorrection = + (Math.PI / 2);
+
+    const dx = Math.cos(angle + directionCorrection);
+    const dy = Math.sin(angle + directionCorrection);
+
+    const [v1, v2, v3] = triangle;
+
+    const hitsSide1 = lineIntersectsSegment(px, py, dx, dy, v1, v2);
+    const hitsSide2 = lineIntersectsSegment(px, py, dx, dy, v2, v3);
+    const hitsSide3 = lineIntersectsSegment(px, py, dx, dy, v3, v1);
+
+    return hitsSide1 || hitsSide2 || hitsSide3;
 }
