@@ -26,6 +26,7 @@ let shootSound;
 let explosionSound;
 let shipExplosionSound;
 let bulletSound, bulletSound2, bulletSound3;
+let lazerSound;
 
 let energy = 8000;
 
@@ -38,7 +39,7 @@ let game_state = 0;
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 let gameWithSound = urlParams.get('audio');
-
+let lazerOn = 0;
 
 function preload() {
     if (gameWithSound) {
@@ -51,6 +52,7 @@ function preload() {
         bulletSound3 = loadSound('audio/mechrockets-36267.mp3');
         ambienSound = loadSound('audio/ambience-sounds-8-15136.mp3');
         rechargeSound = loadSound('audio/electric-sparks-6130.mp3');
+        lazerSound = loadSound('audio/laser-charge-175727.mp3');
 
         bulletSound.setVolume(0.5);
         bulletSound2.setVolume(0.5);
@@ -161,70 +163,8 @@ function drawEnergy(amount) {
     return energy != 0;
 }
 
-// Function to calculate the distance between two points
-function distance(x1, y1, x2, y2) {
-    return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-}
 
-// Function to check if a point is inside a circle
-function pointInCircle(px, py, cx, cy, r) {
-    return distance(px, py, cx, cy) <= r;
-}
 
-// Function to check if a line segment intersects a circle
-function lineIntersectsCircle(x1, y1, x2, y2, cx, cy, r) {
-    // Check if either endpoint is inside the circle
-    if (pointInCircle(x1, y1, cx, cy, r) || pointInCircle(x2, y2, cx, cy, r)) {
-        return true;
-    }
-
-    // Calculate the distance from the circle's center to the line segment
-    let dx = x2 - x1;
-    let dy = y2 - y1;
-    let fx = x1 - cx;
-    let fy = y1 - cy;
-
-    let a = dx * dx + dy * dy;
-    let b = 2 * (fx * dx + fy * dy);
-    let c = (fx * fx + fy * fy) - r * r;
-
-    let discriminant = b * b - 4 * a * c;
-    if (discriminant < 0) {
-        return false; // No intersection
-    }
-
-    discriminant = Math.sqrt(discriminant);
-
-    let t1 = (-b - discriminant) / (2 * a);
-    let t2 = (-b + discriminant) / (2 * a);
-
-    if (t1 >= 0 && t1 <= 1 || t2 >= 0 && t2 <= 1) {
-        return true; // Intersection
-    }
-
-    return false; // No intersection
-}
-
-// Function to check for collision between the ship and the circle
-function crashDetection(shipCoordinates, circleX, circleY, radius) {
-    // Check if any of the triangle's vertices are inside the circle
-    for (let vertex of shipCoordinates) {
-        if (pointInCircle(vertex.x, vertex.y, circleX, circleY, radius)) {
-            return true;
-        }
-    }
-
-    // Check if any of the triangle's edges intersect the circle
-    for (let i = 0; i < shipCoordinates.length; i++) {
-        let start = shipCoordinates[i];
-        let end = shipCoordinates[(i + 1) % shipCoordinates.length];
-        if (lineIntersectsCircle(start.x, start.y, end.x, end.y, circleX, circleY, radius)) {
-            return true;
-        }
-    }
-
-    return false; // No collision detected
-}
 
 function drawBattery(centerX, centerY) {
 
@@ -388,20 +328,24 @@ function checkIfHitEnemy(bullet) {
         let distance = dist(bulletX, bulletY, enemyX, enemyY);
 
         if (distance < 20) {
-            delete enemies[id]; ''
-            score++;
-            updateScore(score);
-
-            sendClearEnemy(enemy);
-            makeExplosion(enemyX, enemyY);
-            if (gameWithSound) {
-                explosionSound.play();
-            }
+            killEnemyAt(enemy, enemyX, enemyY);
 
             return 1;
         }
     }
     return 0;
+}
+
+function killEnemyAt(enemy, enemyX, enemyY) {
+    delete enemies[id]; '';
+    score++;
+    updateScore(score);
+
+    sendClearEnemy(enemy);
+    makeExplosion(enemyX, enemyY);
+    if (gameWithSound) {
+        explosionSound.play();
+    }
 }
 
 function atCenter(x, y) {
@@ -461,6 +405,7 @@ function drawBullets(shipCoordinates) {
 }
 
 function drawEnemies() {
+    
     for (id in enemies) {
         let enemy = enemies[id];
 
@@ -474,6 +419,11 @@ function drawEnemies() {
         /* Outside of view screen - no need to draw */
         if (centerX < -20 || centerX > width + 20 || centerY < -20 || centerY > height + 20) {
             continue;
+        }
+
+        if(lazerOn && lineIntersectsCircleRadius(width/2, height/2, angle, centerX, centerY, 20)) {
+            killEnemyAt(enemy, centerX, centerY);
+            continue
         }
 
 
@@ -595,7 +545,7 @@ function drawOtherShips() {
         const shipX = value.w + rel_x;
         const shipY = value.h + rel_y;
 
-        drawOneShip(shipX, shipY, value.direction, 1);
+        drawOneShip(shipX, shipY, value.direction, value.lazer);
 
     });
 }
@@ -606,7 +556,7 @@ function drawShip() {
     const shipY = height / 2;
 
     // Save the current state of the canvas
-    let transform = drawOneShip(shipX, shipY, angle, 1);
+    let transform = drawOneShip(shipX, shipY, angle, lazerOn);
 
     let x_0 = transform['e'];
     let y_0 = transform['f'];
@@ -627,15 +577,18 @@ function drawShip() {
     }];
 }
 
-function drawOneShip(shipX, shipY, shipAngle, col) {
+function drawOneShip(shipX, shipY, shipAngle, lazer) {
     push();
 
-    stroke(col);
+    stroke(1);
     if (game_state == START_SHIELD) {
         fill("green");
         circle(shipX, shipY, 53);
     }
 
+    if(lazer) {
+        stroke("red");
+    }
     // Translate to the ship's position
     translate(shipX, shipY);
 
@@ -647,9 +600,16 @@ function drawOneShip(shipX, shipY, shipAngle, col) {
     beginShape();
 
     vertex(0, -20); // Tip of the triangle pointing upwards
+
+    if(lazerOn) {
+        vertex(0,-800);
+        vertex(0,-20);    
+    }
+
     vertex(-15, 15); // Bottom left corner
     vertex(15, 15); // Bottom right corner
     endShape(CLOSE);
+    stroke(1);
 
     let transform = drawingContext.getTransform();
     // Restore the previous state of the canvas    
@@ -732,7 +692,9 @@ function draw() {
     noiseOffsetX += speed_x;
     noiseOffsetY += speed_y;
 
-    if (keyIsDown(RIGHT_ARROW) || keyIsDown(70)) {
+    if (lazerOn) {
+
+    } else if (keyIsDown(RIGHT_ARROW) || keyIsDown(70)) {
         angel_acceleration += 0.05;
         if (angel_acceleration > MAX_ANGLE_ACCELERATION) {
             angel_acceleration = MAX_ANGLE_ACCELERATION;
@@ -749,12 +711,23 @@ function draw() {
     }
 
     /* z key or j*/
-    if (keyIsDown(90) || keyIsDown(74)) {
+    if (!lazerOn && (keyIsDown(90) || keyIsDown(74))) {
         maybeFireBullet();
-    }
+    } 
+   
+    /* 65 = a,  85 = u*/
+    if(!lazerOn && (keyIsDown(65) || keyIsDown(85))) {
+        lazerOn = 1;
+        if(gameWithSound) {
+           lazerSound.play();
+        }
+        setTimeout(lazerOff, 2000);
+    } 
+
+    
 
     /** Up arrow or e */
-    if ((game_state == 0 || game_state == 1) && (keyIsDown(UP_ARROW) || keyIsDown(69)) && drawEnergy(1)) {
+    if (!lazerOn && (game_state == 0 || game_state == 1) && (keyIsDown(UP_ARROW) || keyIsDown(69)) && drawEnergy(1)) {
         currentAcceleration += maxAcceleration / 30;
         if (currentAcceleration > maxAcceleration) {
             currentAcceleration = maxAcceleration;
@@ -792,3 +765,10 @@ function draw() {
     speed_y -= (speed_y / 20);
 }
 
+function lazerOff() {
+    lazerOn = 0;
+    if(gameWithSound) {
+        lazerSound.stop();
+    }
+    
+}
