@@ -8,8 +8,6 @@ function renderScores() {
     }
     playerListElement.innerHTML = ''; // Clear existing list items
 
-    console.log(players);
-
     for (const id in players) {
         if (players.hasOwnProperty(id)) {
             const [nick, score] = players[id];
@@ -22,6 +20,20 @@ function renderScores() {
 
 window.clearScore = function clearScore(id) {
     delete players[id];
+}
+
+window.updatePowerups = function updatePowerups(obj) {
+    const powerupsElement = document.getElementById('powerups');
+    powerupsElement.innerHTML = '';
+
+    for (const id in obj) {
+        if (obj.hasOwnProperty(id)) {
+            const value = obj[id];
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `<span>${id}:</span> ${value}`;
+            powerupsElement.appendChild(listItem);
+        }
+    }
 }
 
 window.updateEnergy = function updateEnergy(value) {

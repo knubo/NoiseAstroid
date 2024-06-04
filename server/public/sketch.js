@@ -26,9 +26,10 @@ let shootSound;
 let explosionSound;
 let shipExplosionSound;
 let bulletSound, bulletSound2, bulletSound3;
-let lazerSound;
+let laserSound;
 
 let energy = 8000;
+let powerups = {};
 
 const START_SHIELD = 1;
 const CRASH_START = 2;
@@ -39,7 +40,7 @@ let game_state = 0;
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 let gameWithSound = urlParams.get('audio');
-let lazerOn = 0;
+let laserOn = 0;
 
 function preload() {
     if (gameWithSound) {
@@ -52,7 +53,7 @@ function preload() {
         bulletSound3 = loadSound('audio/mechrockets-36267.mp3');
         ambienSound = loadSound('audio/ambience-sounds-8-15136.mp3');
         rechargeSound = loadSound('audio/electric-sparks-6130.mp3');
-        lazerSound = loadSound('audio/laser-charge-175727.mp3');
+        laserSound = loadSound('audio/laser-charge-175727.mp3');
 
         bulletSound.setVolume(0.5);
         bulletSound2.setVolume(0.5);
@@ -66,6 +67,7 @@ function setup() {
     frameRate(30);
     noiseSeed(1);
     restartAtStart();
+    powerups["Laser"] = 1;
 
     if (gameWithSound) {
         thrustSound.setLoop(true);
@@ -73,6 +75,7 @@ function setup() {
         ambienSound.play();
     }
 
+    updatePowerups(powerups);
 }
 
 window.otherBullet = function otherBullet(bullet) {
@@ -421,7 +424,7 @@ function drawEnemies() {
             continue;
         }
 
-        if(lazerOn && lineIntersectsCircleRadius(width/2, height/2, angle, centerX, centerY, 20)) {
+        if(laserOn && lineIntersectsCircleRadius(width/2, height/2, angle, centerX, centerY, 20)) {
             killEnemyAt(enemy, centerX, centerY);
             continue
         }
@@ -545,7 +548,7 @@ function drawOtherShips() {
         const shipX = value.w + rel_x;
         const shipY = value.h + rel_y;
 
-        drawOneShip(shipX, shipY, value.direction, value.lazer);
+        drawOneShip(shipX, shipY, value.direction, value.laser);
 
     });
 }
@@ -556,7 +559,7 @@ function drawShip() {
     const shipY = height / 2;
 
     // Save the current state of the canvas
-    let transform = drawOneShip(shipX, shipY, angle, lazerOn);
+    let transform = drawOneShip(shipX, shipY, angle, laserOn);
 
     let x_0 = transform['e'];
     let y_0 = transform['f'];
@@ -577,7 +580,7 @@ function drawShip() {
     }];
 }
 
-function drawOneShip(shipX, shipY, shipAngle, lazer) {
+function drawOneShip(shipX, shipY, shipAngle, laser) {
     push();
 
     stroke(1);
@@ -586,7 +589,7 @@ function drawOneShip(shipX, shipY, shipAngle, lazer) {
         circle(shipX, shipY, 53);
     }
 
-    if(lazer) {
+    if(laser) {
         stroke("red");
     }
     // Translate to the ship's position
@@ -601,7 +604,7 @@ function drawOneShip(shipX, shipY, shipAngle, lazer) {
 
     vertex(0, -20); // Tip of the triangle pointing upwards
 
-    if(lazerOn) {
+    if(laserOn) {
         vertex(0,-800);
         vertex(0,-20);    
     }
@@ -637,6 +640,17 @@ function makeExplosion(x, y) {
 
 function gameOn() {
     game_state = 0;
+}
+
+function usePowerup(type) {
+    if(powerups[type] < 1) {
+        return 0;
+    }
+
+    powerups[type]--;
+    updatePowerups(powerups);
+
+    return 1;
 }
 
 function restartAtStart() {
@@ -678,7 +692,7 @@ function draw() {
         drawBullets([]);
         return;
     } else {
-        sendLocationUpdate(noiseOffsetX, noiseOffsetY, angle, width / 2, height / 2);
+        sendLocationUpdate(noiseOffsetX, noiseOffsetY, angle, width / 2, height / 2), laserOn;
 
         let shipCoordinates = drawShip();
 
@@ -692,7 +706,7 @@ function draw() {
     noiseOffsetX += speed_x;
     noiseOffsetY += speed_y;
 
-    if (lazerOn) {
+    if (laserOn) {
 
     } else if (keyIsDown(RIGHT_ARROW) || keyIsDown(70)) {
         angel_acceleration += 0.05;
@@ -711,23 +725,23 @@ function draw() {
     }
 
     /* z key or j*/
-    if (!lazerOn && (keyIsDown(90) || keyIsDown(74))) {
+    if (!laserOn && (keyIsDown(90) || keyIsDown(74))) {
         maybeFireBullet();
     } 
    
     /* 65 = a,  85 = u*/
-    if(!lazerOn && (keyIsDown(65) || keyIsDown(85))) {
-        lazerOn = 1;
+    if(!laserOn && (keyIsDown(65) || keyIsDown(85)) && usePowerup("Laser")) {
+        laserOn = 1;
         if(gameWithSound) {
-           lazerSound.play();
+           laserSound.play();
         }
-        setTimeout(lazerOff, 2000);
+        setTimeout(laserOff, 2000);
     } 
 
     
 
     /** Up arrow or e */
-    if (!lazerOn && (game_state == 0 || game_state == 1) && (keyIsDown(UP_ARROW) || keyIsDown(69)) && drawEnergy(1)) {
+    if (!laserOn && (game_state == 0 || game_state == 1) && (keyIsDown(UP_ARROW) || keyIsDown(69)) && drawEnergy(1)) {
         currentAcceleration += maxAcceleration / 30;
         if (currentAcceleration > maxAcceleration) {
             currentAcceleration = maxAcceleration;
@@ -765,10 +779,10 @@ function draw() {
     speed_y -= (speed_y / 20);
 }
 
-function lazerOff() {
-    lazerOn = 0;
+function laserOff() {
+    laserOn = 0;
     if(gameWithSound) {
-        lazerSound.stop();
+        laserSound.stop();
     }
     
 }

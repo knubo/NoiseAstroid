@@ -50,12 +50,12 @@ window.sendClearEnemy = function sendClearEnemy(enemy) {
     socket.emit('spawnClear', enemy);
 }
 
-window.sendLocationUpdate = function sendLocationUpdate(x, y, direction, w, h) {
+window.sendLocationUpdate = function sendLocationUpdate(x, y, direction, w, h, laser) {
     if(!nick) {
         return;
     }
 
-    socket.emit('locationUpdate', {"x":x, "y":y, "direction":direction, "w":w, "h":h});
+    socket.emit('locationUpdate', {"x":x, "y":y, "direction":direction, "w":w, "h":h, "laser":laser});
 }
 
 if(socket) {
