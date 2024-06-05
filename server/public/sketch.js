@@ -35,7 +35,7 @@ const START_SHIELD = 1;
 const CRASH_START = 2;
 const CRASH_GOING_ON = 3;
 
-let game_state = 0;
+let game_state = -1;
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
@@ -69,16 +69,19 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
     frameRate(30);
     noiseSeed(1);
-    restartAtStart();
     powerups["Laser"] = 100;
 
+    updatePowerups(powerups);
+}
+
+window.startGame = function startGame() {
     if (gameWithSound) {
         thrustSound.setLoop(true);
         ambienSound.setLoop(true);
         ambienSound.play();
     }
-
-    updatePowerups(powerups);
+    document.getElementById('introDiv').hidden = true;
+    restartAtStart();
 }
 
 window.otherBullet = function otherBullet(bullet) {
@@ -711,6 +714,11 @@ function restartAtStart() {
 }
 
 function draw() {
+
+    if(game_state == -1) {
+        return;
+    }
+
     clear();
 
     drawParticles();

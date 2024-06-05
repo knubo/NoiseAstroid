@@ -46,6 +46,41 @@
             z-index: 1000;
             border-radius: 4px;
         }
+        .intro-div {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            z-index: 1000;
+            text-align: center;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+        }
+        .intro-div h1 {
+            margin-bottom: 20px;
+        }
+        .intro-div p {
+            text-align: left;
+            margin: 10px 0;
+        }
+        .intro-div button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #0072ff;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .intro-div button:hover {
+            background-color: #005bb5;
+        }
+        
     </style>
 </head>
 <body>
@@ -59,6 +94,17 @@
         <div id="powerups"></div>
     </div>
 
+    <div class="intro-div" id="introDiv">
+        <h1>Noistroids</h1>
+        <p>Welcome to Noistroids! Here are the controls:</p>
+        <p>Turn left: Left arrow or the letter S</p>
+        <p>Turn right: Right arrow or the letter F</p>
+        <p>Shoot: Z or the letter J</p>
+        <p>Laser powerup: A or the letter U</p>
+        <p>If you reach zero energy, your ship will crash. Recharge by hovering near batteries.</p>
+        <p>Obtain points by shooting stuff shooting at you. No points for shooting other players.</p>
+        <button id="playButton" onclick="startGame();">Play</button>
+    </div>
     <script>
         renderScores()
     </script>
