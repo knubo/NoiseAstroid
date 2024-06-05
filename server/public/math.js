@@ -138,3 +138,47 @@ window.laserHitsTriangle = function laserHitsTriangle(px, py, angle, triangle) {
 
     return hitsSide1 || hitsSide2 || hitsSide3;
 }
+
+window.getTextBoxCoordinates = function getTextBoxCoordinates(playerX, playerY) {
+    // Center of the screen
+    const centerX = width / 2;
+    const centerY = height / 2;
+
+    // Calculate the direction from the center to the player's position
+    const dx = playerX - centerX;
+    const dy = playerY - centerY;
+
+    // Slope of the line from the center to the player's position
+    const slope = dy / dx;
+
+    let x, y;
+
+    // Determine the intersection point with the screen boundary
+    if (playerX < 0) { // Left boundary
+        x = 0;
+        y = centerY - (centerX * slope);
+    } else if (playerX > width) { // Right boundary
+        x = width;
+        y = centerY + ((width - centerX) * slope);
+    } else if (playerY < 0) { // Top boundary
+        y = 0;
+        x = centerX - (centerY / slope);
+    } else if (playerY > height) { // Bottom boundary
+        y = height;
+        x = centerX + ((height - centerY) / slope);
+    } else {
+        // Player is within the screen boundaries
+        x = playerX;
+        y = playerY;
+    }
+
+    // Clamp the y-coordinate to the screen boundaries
+    if (y < 0) y = 0;
+    if (y > height) y = height;
+
+    // Clamp the x-coordinate to the screen boundaries
+    if (x < 0) x = 0;
+    if (x > width) x = width;
+
+    return { x, y };
+}

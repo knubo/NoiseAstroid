@@ -587,12 +587,38 @@ function drawOtherShips(shipCoordinates) {
         const shipX = value.w + rel_x;
         const shipY = value.h + rel_y;
 
+        if(shipX < -20 || shipX > width+20 || shipY < -20 || shipY > height+20) {
+            let { x, y } = getTextBoxCoordinates(shipX, shipY);
+            fill("yellow"); // White color for the text box
+
+            const nick = getPlayerShortNick(value.id);
+            if(x > width / 2) {
+                x -= nick.length * 3.5;
+            } else {
+                x += nick.length * 3.5;
+            }
+
+            
+
+            rect(x - 25, y - 20, (nick.length*7) + 5, 20); // Adjust size as needed
+        
+            
+            fill(0); // Black color for the text
+            textSize(10);
+            textAlign(CENTER, CENTER);
+            textFont('Courier New'); 
+            text(nick, x, y-10);
+            fill(255);
+        }
+
         drawOneShip(shipX, shipY, value.direction, value.laser, value.shield);
         
         fill(0);
         stroke(1);
         textSize(10);
-        text(getPlayerShortNick(value.id), shipX-20, shipY+30);
+        textAlign(CENTER, CENTER);
+        textFont("Courier New")
+        text(getPlayerShortNick(value.id), shipX, shipY+30);
         fill(255);
 
         if(game_state == 0 && value.laser && laserHitsTriangle(shipX, shipY, value.direction, shipCoordinates)) {
