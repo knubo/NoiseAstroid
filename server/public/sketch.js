@@ -42,6 +42,9 @@ const urlParams = new URLSearchParams(queryString);
 let gameWithSound = urlParams.get('audio');
 let laserOn = 0;
 
+let width = window.innerWidth;
+let height = window.innerHeight;
+
 function preload() {
     if (gameWithSound) {
         thrustSound = loadSound('audio/loopingthrust-95548.mp3');
