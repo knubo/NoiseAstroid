@@ -139,6 +139,29 @@ window.otherShip = function otherShip(data) {
     otherShips[data.id] = data;
 }
 
+window.otherShipDied = function otherShipDied(obj) {
+    let id = obj.id;
+
+    let data = otherShips[id];
+    clearOtherShip(id);
+
+    if(!data) {
+        return;
+    }
+
+    const rel_x = (data.x - noiseOffsetX) * 500;
+    const rel_y = (data.y - noiseOffsetY) * 500;
+
+    const shipX = data.w + rel_x;
+    const shipY = data.h + rel_y;
+
+    makeExplosion(shipX, shipY, 1);
+    if (gameWithSound) {
+        explosionSound.play();
+    }
+
+}
+
 window.otherParticles = function otherParticles(data) {
 
     for (let i = 0; i < data.length; i++) {
@@ -628,7 +651,7 @@ function drawOneShip(shipX, shipY, shipAngle, laser) {
     return transform;
 }
 
-function makeExplosion(x, y) {
+function makeExplosion(x, y, noBroadcast) {
     let newParticles = [];
     for (let i = 0; i < 200; i++) {
         let angelToUse = random(1, 360);
@@ -643,7 +666,11 @@ function makeExplosion(x, y) {
         particles.push(p);
         newParticles.push(p);
     }
-    sendParticleUpdate(newParticles);
+
+    if(!noBroadcast) {
+        sendParticleUpdate(newParticles);
+    }
+    
 }
 
 function gameOn() {
@@ -690,6 +717,7 @@ function draw() {
         if (gameWithSound) {
             shipExplosionSound.play();
         }
+        sendIDied();
 
         setTimeout(restartAtStart, 4000);
     }

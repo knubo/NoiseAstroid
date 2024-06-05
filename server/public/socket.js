@@ -26,6 +26,14 @@ window.updateScore = function updateScore(points) {
     updatePlayerScore("MY_SCORE", 0, points);
 
     socket.emit('updateScore', {score:points, nick:nick});
+}
+
+window.sendIDied = function sendIDied() {
+    if(!nick) {
+        return;
+    }
+
+    socket.emit('iDied', {});
 
 }
 
@@ -63,6 +71,11 @@ if(socket) {
     socket.on('locationUpdate', (data) => {
         otherShip(data);
     });
+
+    socket.on('iDied', (data) => {
+        otherShipDied(data);
+    });
+
     socket.on('particlesUpdate', (data)  => {
         otherParticles(data);
     });   

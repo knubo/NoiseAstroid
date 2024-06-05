@@ -43,6 +43,14 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('locationUpdate', data);
     });
 
+    socket.on('iDied', () => {
+        let data = {id : socket.id};
+
+        // Broadcast the location update to all other connected clients
+        socket.broadcast.emit('iDied', data);
+    });
+
+
     // Listen for location updates from clients
     socket.on('scoreUpdate', (data) => {
         data.id = socket.id;
