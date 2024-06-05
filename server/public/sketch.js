@@ -57,6 +57,7 @@ function preload() {
         ambienSound = loadSound('audio/ambience-sounds-8-15136.mp3');
         rechargeSound = loadSound('audio/electric-sparks-6130.mp3');
         laserSound = loadSound('audio/laser-charge-175727.mp3');
+        shieldSound = loadSound('audio/energy-hum-29083.mp3');
 
         bulletSound.setVolume(0.5);
         bulletSound2.setVolume(0.5);
@@ -69,13 +70,15 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
     frameRate(30);
     noiseSeed(1);
-    powerups["Laser"] = 100;
+    powerups["Laser"] = 10;
+    powerups["Shield"] = 3;
 
     updatePowerups(powerups);
 }
 
 window.startGame = function startGame() {
     if (gameWithSound) {
+        shieldSound.setLoop(true);
         thrustSound.setLoop(true);
         ambienSound.setLoop(true);
         ambienSound.play();
@@ -793,7 +796,14 @@ function draw() {
         setTimeout(laserOff, 2000);
     } 
 
-    
+    if(!laserOn && game_state == 0 && (keyIsDown(DOWN_ARROW) || keyIsDown(68)) && usePowerup("Shield")) {
+        game_state = 1;
+        if(gameWithSound) {
+            shieldSound.play();
+        }    
+        setTimeout(shieldOff, 3000);
+    }
+
 
     /** Up arrow or e */
     if (!laserOn && (game_state == 0 || game_state == 1) && (keyIsDown(UP_ARROW) || keyIsDown(69)) && drawEnergy(1)) {
@@ -839,5 +849,12 @@ function laserOff() {
     if(gameWithSound) {
         laserSound.stop();
     }
-    
+   
+}
+
+function shieldOff() {
+    game_state = 0;
+    if(gameWithSound) {
+        shieldSound.stop();
+    }
 }

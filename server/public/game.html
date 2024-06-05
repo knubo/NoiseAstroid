@@ -80,6 +80,10 @@
         .intro-div button:hover {
             background-color: #005bb5;
         }
+
+        ul {
+            text-align: left;
+        }
         
     </style>
 </head>
@@ -100,8 +104,13 @@
         <p>Turn left: Left arrow or the letter S</p>
         <p>Turn right: Right arrow or the letter F</p>
         <p>Shoot: Z or the letter J</p>
-        <p>Laser powerup: A or the letter U. While the ship is firing the laser, it does only this...</p>
-        <p>If you reach zero energy, your ship will crash. Recharge by hovering near batteries.</p>
+        <h2>Powerups</h2>
+        <ul>
+        <li>Laser: A or the letter U. While the ship is firing the laser, it does only this...</li>
+            If you reach zero energy, your ship will crash. Recharge by hovering near batteries.</li>
+        <li>Shield: Down arrow or letter D. 3 seconds of protection against everything.</li>
+        </ul>
+        <h2>Gameplay</h2>
         <p>Obtain points by shooting stuff shooting at you. No points for shooting other players.</p>
         <button id="playButton" onclick="startGame();">Play</button>
     </div>
