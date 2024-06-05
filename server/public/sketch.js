@@ -31,7 +31,7 @@ let laserSound;
 let energy = 8000;
 let powerups = {};
 
-const START_SHIELD = 1;
+const SHIELD_UP = 1;
 const CRASH_START = 2;
 const CRASH_GOING_ON = 3;
 
@@ -584,7 +584,7 @@ function drawOtherShips(shipCoordinates) {
         const shipX = value.w + rel_x;
         const shipY = value.h + rel_y;
 
-        drawOneShip(shipX, shipY, value.direction, value.laser);
+        drawOneShip(shipX, shipY, value.direction, value.laser, value.shield);
 
         if(game_state == 0 && value.laser && laserHitsTriangle(shipX, shipY, value.direction, shipCoordinates)) {
             game_state = CRASH_START;
@@ -599,7 +599,7 @@ function drawShip() {
     const shipY = height / 2;
 
     // Save the current state of the canvas
-    let transform = drawOneShip(shipX, shipY, angle, laserOn);
+    let transform = drawOneShip(shipX, shipY, angle, laserOn, game_state == SHIELD_UP);
 
     return transformationToCoordinates(transform);
 }
@@ -624,11 +624,11 @@ function transformationToCoordinates(transform) {
     }];
 }
 
-function drawOneShip(shipX, shipY, shipAngle, laser) {
+function drawOneShip(shipX, shipY, shipAngle, laser, shield) {
     push();
 
     stroke(1);
-    if (game_state == START_SHIELD) {
+    if (shield) {
         fill("green");
         circle(shipX, shipY, 53);
     }
@@ -704,7 +704,7 @@ function usePowerup(type) {
 function restartAtStart() {
     noiseOffsetX = 0;
     noiseOffsetY = 0;
-    game_state = START_SHIELD;
+    game_state = SHIELD_UP;
     angle = 0;
     speed_x = 0;
     speed_y = 0;
@@ -746,7 +746,7 @@ function draw() {
         drawOtherShips([]);
         return;
     } else {
-        sendLocationUpdate(noiseOffsetX, noiseOffsetY, angle, width / 2, height / 2, laserOn);
+        sendLocationUpdate(noiseOffsetX, noiseOffsetY, angle, width / 2, height / 2, laserOn, game_state == SHIELD_UP);
 
         let shipCoordinates = drawShip();
 
