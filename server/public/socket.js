@@ -125,7 +125,7 @@ if(socket) {
             timer: 3000,
             timerProgressBar: true,
           });
-          clearOtherShip(data.id);c
+          clearOtherShip(data.id);
           clearScore(data.id);
     });
 
