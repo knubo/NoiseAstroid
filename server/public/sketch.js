@@ -95,13 +95,20 @@ window.otherBullet = function otherBullet(bullet) {
     if (gameWithSound) {
         switch (bullet.type) {
             case 2:
-                bulletSound2.play();
+                if(!bulletSound2.isPlaying()) {
+                    bulletSound2.play();
+                }
+                
                 break;
             case 3:
-                bulletSound3.play();
+                if(!bulletSound3.isPlaying()) {
+                    bulletSound3.play();
+                }
                 break;
             default:
-                bulletSound.play();
+                if(!bulletSound.isPlaying()) {
+                    bulletSound.play();
+                }
                 break;
         }
     }
