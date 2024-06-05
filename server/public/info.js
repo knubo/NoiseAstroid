@@ -18,6 +18,16 @@ function renderScores() {
     }
 }
 
+window.getPlayerShortNick = function getPlayerShortNick(id) {
+    let nickAndScore = players[id];
+
+    if(!nickAndScore || !nickAndScore[0]) {
+        return "Unknown";
+    }
+    let nick = nickAndScore[0];
+    return nick;
+}
+
 window.clearScore = function clearScore(id) {
     delete players[id];
 }

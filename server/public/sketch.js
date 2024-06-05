@@ -588,6 +588,12 @@ function drawOtherShips(shipCoordinates) {
         const shipY = value.h + rel_y;
 
         drawOneShip(shipX, shipY, value.direction, value.laser, value.shield);
+        
+        fill(0);
+        stroke(1);
+        textSize(10);
+        text(getPlayerShortNick(value.id), shipX-20, shipY+30);
+        fill(255);
 
         if(game_state == 0 && value.laser && laserHitsTriangle(shipX, shipY, value.direction, shipCoordinates)) {
             game_state = CRASH_START;
