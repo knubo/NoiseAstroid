@@ -29,6 +29,7 @@ let bulletSound, bulletSound2, bulletSound3;
 let laserSound;
 
 let energy = 8000;
+let maxEnergy = 10000;
 let powerups = {};
 
 const SHIELD_UP = 1;
@@ -192,8 +193,8 @@ window.otherParticles = function otherParticles(data) {
 function drawEnergy(amount) {
     energy -= amount;
 
-    if (energy > 10000) {
-        energy = 10000;
+    if (energy > maxEnergy) {
+        energy = maxEnergy;
     }
 
     if (energy < 0) {
@@ -249,7 +250,7 @@ function rechargeCraft() {
 
 }
 
-function draw_background(shipCoordinates) {
+function drawBackground(shipCoordinates) {
 
     // Iterate from top to bottom.
     for (let y = 0; y < height; y += 10) {
@@ -639,25 +640,7 @@ function drawShip() {
     return transformationToCoordinates(transform);
 }
 
-function transformationToCoordinates(transform) {
-    let x_0 = transform['e'];
-    let y_0 = transform['f'];
-    let x_1 = transform['a'] + transform['e'];
-    let y_1 = transform['b'] + transform['f'];
-    let media_per_unit = dist(x_0, y_0, x_1, y_1);
 
-    return [{
-        x: ((transform.a * 0 + transform.c * -20 + transform.e) / media_per_unit),
-        y: ((transform.b * 0 + transform.d * -20 + transform.f) / media_per_unit)
-    }, {
-        x: ((transform.a * -15 + transform.c * 15 + transform.e) / media_per_unit),
-        y: ((transform.b * -15 + transform.d * 15 + transform.f) / media_per_unit)
-    },
-    {
-        x: ((transform.a * 15 + transform.c * 15 + transform.e) / media_per_unit),
-        y: ((transform.b * 15 + transform.d * 15 + transform.f) / media_per_unit)
-    }];
-}
 
 function drawOneShip(shipX, shipY, shipAngle, laser, shield) {
     push();
@@ -776,7 +759,7 @@ function draw() {
     }
 
     if (game_state == CRASH_GOING_ON) {
-        draw_background([]);
+        drawBackground([]);
         drawBullets([]);
         drawOtherShips([]);
         return;
@@ -786,7 +769,7 @@ function draw() {
         let shipCoordinates = drawShip();
 
         drawOtherShips(shipCoordinates);
-        draw_background(shipCoordinates);
+        drawBackground(shipCoordinates);
         drawBullets(shipCoordinates);
     }
 

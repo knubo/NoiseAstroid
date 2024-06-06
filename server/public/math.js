@@ -182,3 +182,23 @@ window.getTextBoxCoordinates = function getTextBoxCoordinates(playerX, playerY) 
 
     return { x, y };
 }
+
+window.transformationToCoordinates = function transformationToCoordinates(transform) {
+    let x_0 = transform['e'];
+    let y_0 = transform['f'];
+    let x_1 = transform['a'] + transform['e'];
+    let y_1 = transform['b'] + transform['f'];
+    let media_per_unit = dist(x_0, y_0, x_1, y_1);
+
+    return [{
+        x: ((transform.a * 0 + transform.c * -20 + transform.e) / media_per_unit),
+        y: ((transform.b * 0 + transform.d * -20 + transform.f) / media_per_unit)
+    }, {
+        x: ((transform.a * -15 + transform.c * 15 + transform.e) / media_per_unit),
+        y: ((transform.b * -15 + transform.d * 15 + transform.f) / media_per_unit)
+    },
+    {
+        x: ((transform.a * 15 + transform.c * 15 + transform.e) / media_per_unit),
+        y: ((transform.b * 15 + transform.d * 15 + transform.f) / media_per_unit)
+    }];
+}
