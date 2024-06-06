@@ -9,6 +9,8 @@ let angel_acceleration;
 const MAX_ANGLE_ACCELERATION = 0.25;
 
 let score = 0;
+let spawnX = 0;
+let spawnY = 0;
 
 let speed_x = 0;
 let speed_y = 0;
@@ -59,6 +61,7 @@ function preload() {
         rechargeSound = loadSound('audio/electric-sparks-6130.mp3');
         laserSound = loadSound('audio/laser-charge-175727.mp3');
         shieldSound = loadSound('audio/energy-hum-29083.mp3');
+        checkpointSound = loadSound('audio/success_bell-6776.mp3');
 
         bulletSound.setVolume(0.5);
         bulletSound2.setVolume(0.5);
@@ -273,10 +276,10 @@ function drawBackground(shipCoordinates) {
 
                 circle(x, y, 5);
             } else {
-                const xcheck = (Math.floor(noiseOffsetX * 500) + x) % 3000;
-                const ycheck = (Math.floor(noiseOffsetY * 500) + y) % 3000;
+                let xcheck = abs((Math.floor(noiseOffsetX * 500) + x) % 3000);
+                let ycheck = abs((Math.floor(noiseOffsetY * 500) + y) % 3000);
 
-                if (abs(xcheck) < 11 && abs(ycheck) < 11) {
+                if (xcheck < 11 && ycheck < 11) {
                     drawBattery(x, y);
 
                     if (x > (width / 2 - 70) && x < (width / 2 + 70) && y > (height / 2 - 70) && y < (height / 2) + 70) {
@@ -290,6 +293,20 @@ function drawBackground(shipCoordinates) {
                         }
                     }
                 }
+
+                if (xcheck > 1500 && xcheck < 1511 && ycheck > 1500 && ycheck < 1511) {
+                    drawCheckpointIcon(x,y);
+
+                    if (x > (width / 2 - 70) && x < (width / 2 + 70) && y > (height / 2 - 70) && y < (height / 2) + 70) {
+                        spawnX = noiseOffsetX;
+                        spawnY = noiseOffsetY;
+                    
+                        if(gameWithSound && !checkpointSound.isPlaying()) {
+                            checkpointSound.play();
+                        }
+                    }
+                }
+
             }
         }
     }
@@ -395,6 +412,34 @@ function atCenter(x, y) {
     return x < (width / 2) + 5 && x > (width / 2) + 5 && y < (height / 2) + 5 && y > (height / 2) + 5;
 }
 
+function drawCheckpointIcon(x, y) {
+    let size = 40;
+    // Calculate proportions
+    let flagWidth = size * 0.6;
+    let flagHeight = size * 0.4;
+    let poleHeight = size;
+    let poleWidth = size * 0.1;
+    let baseSize = size * 0.2;
+    
+    // Draw the flag
+    fill(255, 0, 0); // Red flag
+    noStroke();
+    beginShape();
+    vertex(x, y - poleHeight / 2);
+    vertex(x + flagWidth, y - poleHeight / 2 + flagHeight / 2);
+    vertex(x, y - poleHeight / 2 + flagHeight);
+    endShape(CLOSE);
+
+    // Draw the pole
+    fill(100); // Grey pole
+    rect(x - poleWidth / 2, y - poleHeight / 2, poleWidth, poleHeight);
+
+    // Draw the base
+    fill(0); // Black base
+    rect(x - baseSize / 2, y + poleHeight / 2, baseSize, baseSize / 2);
+    fill(255);
+    stroke(1);
+  }
 
 
 function drawBullets(shipCoordinates) {
@@ -720,8 +765,8 @@ function usePowerup(type) {
 }
 
 function restartAtStart() {
-    noiseOffsetX = 0;
-    noiseOffsetY = 0;
+    noiseOffsetX = spawnX;
+    noiseOffsetY = spawnY;
     game_state = SHIELD_UP;
     angle = 0;
     speed_x = 0;
