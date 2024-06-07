@@ -47,8 +47,7 @@ window.lineIntersectsCircle = function lineIntersectsCircle(x1, y1, x2, y2, cx, 
 
 window.lineIntersectsCircleRadius = function lineIntersectsCircleRadius(px, py, angle, cx, cy, r) {
     // Convert angle to direction vector
-
-    const directionCorrection = + (Math.PI / 2);
+    const directionCorrection = Math.PI / 2;
 
     const dx = Math.cos(angle - directionCorrection);
     const dy = Math.sin(angle - directionCorrection);
@@ -62,12 +61,14 @@ window.lineIntersectsCircleRadius = function lineIntersectsCircleRadius(px, py, 
     if (discriminant > 0) {
         const t1 = (-B + Math.sqrt(discriminant)) / (2 * A);
         const t2 = (-B - Math.sqrt(discriminant)) / (2 * A);
-        return true; // { intersects: true, t1, t2 };
+        const intersects1 = t1 >= 0;
+        const intersects2 = t2 >= 0;
+        return intersects1 || intersects2;
     } else if (discriminant === 0) {
         const t = -B / (2 * A);
-        return true; //{ intersects: true, t1: t, t2: t };
+        return t >= 0;
     } else {
-        return false; //{ intersects: false };
+        return false;
     }
 }
 
@@ -119,7 +120,9 @@ function lineIntersectsSegment(px, py, dx, dy, v1, v2) {
         const minY = Math.min(y1, y2);
         const maxY = Math.max(y1, y2);
 
-        return (ix >= minX && ix <= maxX && iy >= minY && iy <= maxY);
+        const forwardCheck = (ix - px) * dx + (iy - py) * dy >= 0;
+
+        return (ix >= minX && ix <= maxX && iy >= minY && iy <= maxY && forwardCheck);
     }
 }
 
