@@ -64,9 +64,6 @@ function preload() {
         shieldSound = loadSound('audio/energy-hum-29083.mp3');
         checkpointSound = loadSound('audio/success_bell-6776.mp3');
         powerUpSound = loadSound('audio/message-incoming-132126.mp3');
-        bulletSound.setVolume(0.5);
-        bulletSound2.setVolume(0.5);
-
     }
 
 }
@@ -77,6 +74,11 @@ function setup() {
     noiseSeed(1);
     powerupStatus["Laser"] = 0;
     powerupStatus["Shield"] = 0;
+
+    if(gameWithSound) {
+        bulletSound.setVolume(0.5);
+        bulletSound2.setVolume(0.5);            
+    }
 
     updatePowerups(powerupStatus);
 }
