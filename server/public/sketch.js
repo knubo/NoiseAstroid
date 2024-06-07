@@ -20,6 +20,7 @@ let otherShips = {};
 
 let lastBulletFired = 0;
 let bullets = [];
+let powerups = [];
 
 let enemies = {};
 
@@ -32,7 +33,7 @@ let laserSound;
 
 let energy = 8000;
 let maxEnergy = 10000;
-let powerups = {};
+let powerupStatus = {};
 
 const SHIELD_UP = 1;
 const CRASH_START = 2;
@@ -62,7 +63,7 @@ function preload() {
         laserSound = loadSound('audio/laser-charge-175727.mp3');
         shieldSound = loadSound('audio/energy-hum-29083.mp3');
         checkpointSound = loadSound('audio/success_bell-6776.mp3');
-
+        powerUpSound = loadSound('audio/message-incoming-132126.mp3');
         bulletSound.setVolume(0.5);
         bulletSound2.setVolume(0.5);
 
@@ -74,10 +75,10 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
     frameRate(30);
     noiseSeed(1);
-    powerups["Laser"] = 10;
-    powerups["Shield"] = 3;
+    powerupStatus["Laser"] = 0;
+    powerupStatus["Shield"] = 0;
 
-    updatePowerups(powerups);
+    updatePowerups(powerupStatus);
 }
 
 window.startGame = function startGame() {
@@ -105,18 +106,18 @@ window.otherBullet = function otherBullet(bullet) {
     if (gameWithSound) {
         switch (bullet.type) {
             case 2:
-                if(!bulletSound2.isPlaying()) {
+                if (!bulletSound2.isPlaying()) {
                     bulletSound2.play();
                 }
-                
+
                 break;
             case 3:
-                if(!bulletSound3.isPlaying()) {
+                if (!bulletSound3.isPlaying()) {
                     bulletSound3.play();
                 }
                 break;
             default:
-                if(!bulletSound.isPlaying()) {
+                if (!bulletSound.isPlaying()) {
                     bulletSound.play();
                 }
                 break;
@@ -165,7 +166,7 @@ window.otherShipDied = function otherShipDied(obj) {
     let data = otherShips[id];
     clearOtherShip(id);
 
-    if(!data) {
+    if (!data) {
         return;
     }
 
@@ -295,13 +296,13 @@ function drawBackground(shipCoordinates) {
                 }
 
                 if (xcheck > 1500 && xcheck < 1511 && ycheck > 1500 && ycheck < 1511) {
-                    drawCheckpointIcon(x,y);
+                    drawCheckpointIcon(x, y);
 
                     if (x > (width / 2 - 70) && x < (width / 2 + 70) && y > (height / 2 - 70) && y < (height / 2) + 70) {
                         spawnX = noiseOffsetX;
                         spawnY = noiseOffsetY;
-                    
-                        if(gameWithSound && !checkpointSound.isPlaying()) {
+
+                        if (gameWithSound && !checkpointSound.isPlaying()) {
                             checkpointSound.play();
                         }
                     }
@@ -371,6 +372,17 @@ function addParticles() {
     sendParticleUpdate(newParticles);
 }
 
+function ranomPowerUp() {
+    switch (getRandomInt(3)) {
+        case 0:
+            return "E";
+        case 1:
+            return "S"
+        case 2:
+            return "L";
+    }
+}
+
 function checkIfHitEnemy(bullet) {
     for (id in enemies) {
         let enemy = enemies[id];
@@ -389,7 +401,6 @@ function checkIfHitEnemy(bullet) {
 
         if (distance < 20) {
             killEnemyAt(enemy, enemyX, enemyY);
-
             return 1;
         }
     }
@@ -406,6 +417,46 @@ function killEnemyAt(enemy, enemyX, enemyY) {
     if (gameWithSound) {
         explosionSound.play();
     }
+
+    if (random(1, 100) <= 2) {
+        powerups.push({
+            "x": enemyX, "noiseOffsetX": noiseOffsetX,
+            "y": enemyY, "noiseOffsetY": noiseOffsetY,
+            "powerup": ranomPowerUp(),
+            "ttl": 700
+        });
+    }
+
+}
+
+function drawPowerups() {
+    for (let i = powerups.length - 1; i >= 0; i--) {
+        let powerup = powerups[i];
+
+        powerup.y += 1;
+        powerup.ttl--;
+
+        if (powerup.ttl <= 0) {
+            powerups.splice(i, 1);
+            continue;
+        }
+
+        const x = powerup.x + (powerup.noiseOffsetX - noiseOffsetX) * 500;
+        const y = powerup.y + (powerup.noiseOffsetY - noiseOffsetY) * 500;
+
+        /* Outside of view screen - no need to draw */
+        if (x < 0 || x > width || y < 0 || y > height) {
+            continue;
+        }
+
+        drawPowerupLetter(x, y, powerup.powerup);
+
+        if (x > (width / 2 - 10) && x < (width / 2 + 10) && y > (height / 2 - 10) && y < (height / 2) + 10) {
+            powerups.splice(i, 1);
+            addPowerUp(powerup.powerup);
+            continue;
+        }
+    }
 }
 
 function atCenter(x, y) {
@@ -420,7 +471,7 @@ function drawCheckpointIcon(x, y) {
     let poleHeight = size;
     let poleWidth = size * 0.1;
     let baseSize = size * 0.2;
-    
+
     // Draw the flag
     fill(255, 0, 0); // Red flag
     noStroke();
@@ -439,7 +490,7 @@ function drawCheckpointIcon(x, y) {
     rect(x - baseSize / 2, y + poleHeight / 2, baseSize, baseSize / 2);
     fill(255);
     stroke(1);
-  }
+}
 
 
 function drawBullets(shipCoordinates) {
@@ -492,8 +543,24 @@ function drawBullets(shipCoordinates) {
     }
 }
 
+function drawPowerupLetter(x, y, letter) {
+    // Draw the plus
+    const size = 30;
+    let plusWidth = size * 0.6;
+    let plusThickness = size * 0.1;
+
+    stroke("green");
+    // Draw the "S" text in the middle
+    textSize(size * 0.5);
+    textAlign(CENTER, CENTER);
+    fill("green"); // White text
+    text(letter, x, y);
+    fill(255);
+    stroke(1);
+}
+
 function drawEnemies() {
-    
+
     for (id in enemies) {
         let enemy = enemies[id];
 
@@ -509,7 +576,7 @@ function drawEnemies() {
             continue;
         }
 
-        if(laserOn && lineIntersectsCircleRadius(width/2, height/2, angle, centerX, centerY, 20)) {
+        if (laserOn && lineIntersectsCircleRadius(width / 2, height / 2, angle, centerX, centerY, 20)) {
             killEnemyAt(enemy, centerX, centerY);
             continue
         }
@@ -633,41 +700,41 @@ function drawOtherShips(shipCoordinates) {
         const shipX = value.w + rel_x;
         const shipY = value.h + rel_y;
 
-        if(shipX < -20 || shipX > width+20 || shipY < -20 || shipY > height+20) {
+        if (shipX < -20 || shipX > width + 20 || shipY < -20 || shipY > height + 20) {
             let { x, y } = getTextBoxCoordinates(shipX, shipY);
             fill("yellow"); // White color for the text box
 
             const nick = getPlayerShortNick(value.id);
-            if(x > width / 2) {
+            if (x > width / 2) {
                 x -= nick.length * 3.5;
             } else {
                 x += nick.length * 3.5;
             }
 
-            
 
-            rect(x - 25, y - 20, (nick.length*7) + 5, 20); // Adjust size as needed
-        
-            
+
+            rect(x - 25, y - 20, (nick.length * 7) + 5, 20); // Adjust size as needed
+
+
             fill(0); // Black color for the text
             textSize(10);
             textAlign(CENTER, CENTER);
-            textFont('Courier New'); 
-            text(nick, x, y-10);
+            textFont('Courier New');
+            text(nick, x, y - 10);
             fill(255);
         }
 
         drawOneShip(shipX, shipY, value.direction, value.laser, value.shield);
-        
+
         fill(0);
         stroke(1);
         textSize(10);
         textAlign(CENTER, CENTER);
         textFont("Courier New")
-        text(getPlayerShortNick(value.id), shipX, shipY+30);
+        text(getPlayerShortNick(value.id), shipX, shipY + 30);
         fill(255);
 
-        if(game_state == 0 && value.laser && laserHitsTriangle(shipX, shipY, value.direction, shipCoordinates)) {
+        if (game_state == 0 && value.laser && laserHitsTriangle(shipX, shipY, value.direction, shipCoordinates)) {
             game_state = CRASH_START;
         }
 
@@ -696,7 +763,7 @@ function drawOneShip(shipX, shipY, shipAngle, laser, shield) {
         circle(shipX, shipY, 53);
     }
 
-    if(laser) {
+    if (laser) {
         stroke("red");
     }
     // Translate to the ship's position
@@ -711,9 +778,9 @@ function drawOneShip(shipX, shipY, shipAngle, laser, shield) {
 
     vertex(0, -20); // Tip of the triangle pointing upwards
 
-    if(laser) {
-        vertex(0,-800);
-        vertex(0,-20);    
+    if (laser) {
+        vertex(0, -800);
+        vertex(0, -20);
     }
 
     vertex(-15, 15); // Bottom left corner
@@ -743,23 +810,42 @@ function makeExplosion(x, y, noBroadcast) {
         newParticles.push(p);
     }
 
-    if(!noBroadcast) {
+    if (!noBroadcast) {
         sendParticleUpdate(newParticles);
     }
-    
+
 }
 
 function gameOn() {
     game_state = 0;
 }
 
+function addPowerUp(powerupLetter) {
+    switch (powerupLetter) {
+        case "E":
+            maxEnergy += 50;
+            break;
+        case "S":
+            powerupStatus["Shield"]++;
+            break;
+        case "L":
+            powerupStatus["Laser"]++;
+            break;
+    }
+    updatePowerups(powerupStatus);s
+
+    if(gameWithSound) {
+        powerUpSound.play();
+    }
+}
+
 function usePowerup(type) {
-    if(powerups[type] < 1) {
+    if (powerupStatus[type] < 1) {
         return 0;
     }
 
-    powerups[type]--;
-    updatePowerups(powerups);
+    powerupStatus[type]--;
+    updatePowerups(powerupStatus);
 
     return 1;
 }
@@ -778,7 +864,7 @@ function restartAtStart() {
 
 function draw() {
 
-    if(game_state == -1) {
+    if (game_state == -1) {
         return;
     }
 
@@ -786,6 +872,7 @@ function draw() {
 
     drawParticles();
     drawEnemies();
+    drawPowerups();
 
     if (game_state == CRASH_START) {
         game_state = CRASH_GOING_ON;
@@ -845,22 +932,22 @@ function draw() {
     /* z key or j*/
     if (!laserOn && (keyIsDown(90) || keyIsDown(74))) {
         maybeFireBullet();
-    } 
-   
+    }
+
     /* 65 = a,  85 = u*/
-    if(!laserOn && (keyIsDown(65) || keyIsDown(85)) && usePowerup("Laser")) {
+    if (!laserOn && (keyIsDown(65) || keyIsDown(85)) && usePowerup("Laser")) {
         laserOn = 1;
-        if(gameWithSound) {
-           laserSound.play();
+        if (gameWithSound) {
+            laserSound.play();
         }
         setTimeout(laserOff, 2000);
-    } 
+    }
 
-    if(!laserOn && game_state == 0 && (keyIsDown(DOWN_ARROW) || keyIsDown(68)) && usePowerup("Shield")) {
+    if (!laserOn && game_state == 0 && (keyIsDown(DOWN_ARROW) || keyIsDown(68)) && usePowerup("Shield")) {
         game_state = 1;
-        if(gameWithSound) {
+        if (gameWithSound) {
             shieldSound.play();
-        }    
+        }
         setTimeout(shieldOff, 3000);
     }
 
@@ -895,7 +982,7 @@ function draw() {
     /* Gravity */
     speed_y += 0.0001;
 
-    if(!energy) {
+    if (!energy) {
         speed_y += 0.001;
     }
 
@@ -906,15 +993,15 @@ function draw() {
 
 function laserOff() {
     laserOn = 0;
-    if(gameWithSound) {
+    if (gameWithSound) {
         laserSound.stop();
     }
-   
+
 }
 
 function shieldOff() {
     game_state = 0;
-    if(gameWithSound) {
+    if (gameWithSound) {
         shieldSound.stop();
     }
 }

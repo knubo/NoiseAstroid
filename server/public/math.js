@@ -19,7 +19,7 @@ window.lineIntersectsCircle = function lineIntersectsCircle(x1, y1, x2, y2, cx, 
     // Calculate the distance from the circle's center to the line segment
     let dx = x2 - x1;
     let dy = y2 - y1;
-    let fx = x1 - cx;   
+    let fx = x1 - cx;
     let fy = y1 - cy;
 
     let a = dx * dx + dy * dy;
@@ -52,7 +52,7 @@ window.lineIntersectsCircleRadius = function lineIntersectsCircleRadius(px, py, 
 
     const dx = Math.cos(angle - directionCorrection);
     const dy = Math.sin(angle - directionCorrection);
-    
+
     const A = dx * dx + dy * dy;
     const B = 2 * ((px - cx) * dx + (py - cy) * dy);
     const C = (px - cx) * (px - cx) + (py - cy) * (py - cy) - r * r;
@@ -201,4 +201,8 @@ window.transformationToCoordinates = function transformationToCoordinates(transf
         x: ((transform.a * 15 + transform.c * 15 + transform.e) / media_per_unit),
         y: ((transform.b * 15 + transform.d * 15 + transform.f) / media_per_unit)
     }];
+}
+
+window.getRandomInt = function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
 }
