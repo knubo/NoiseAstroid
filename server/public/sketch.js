@@ -832,7 +832,7 @@ function addPowerUp(powerupLetter) {
             powerupStatus["Laser"]++;
             break;
     }
-    updatePowerups(powerupStatus);s
+    updatePowerups(powerupStatus);
 
     if(gameWithSound) {
         powerUpSound.play();
