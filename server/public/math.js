@@ -128,7 +128,7 @@ function lineIntersectsSegment(px, py, dx, dy, v1, v2) {
 
 window.laserHitsTriangle = function laserHitsTriangle(px, py, angle, triangle) {
 
-    const directionCorrection = + (Math.PI / 2);
+    const directionCorrection = (Math.PI / 2);
 
     const dx = Math.cos(angle + directionCorrection);
     const dy = Math.sin(angle + directionCorrection);

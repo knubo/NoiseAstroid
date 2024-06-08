@@ -130,7 +130,7 @@ window.otherBullet = function otherBullet(bullet) {
 }
 
 window.addEnemy = function addEnemy(data) {
-    console.log("Enemy added " + JSON.stringify(data));
+//    console.log("Enemy added " + JSON.stringify(data));
     enemies[data.id] = data;
 }
 
@@ -561,7 +561,7 @@ function drawPowerupLetter(x, y, letter) {
     stroke(1);
 }
 
-function drawEnemies() {
+function drawEnemies(shipCoordinates) {
 
     for (id in enemies) {
         let enemy = enemies[id];
@@ -573,8 +573,10 @@ function drawEnemies() {
         let centerX = (enemy.x - noiseOffsetX) * 500;
         let centerY = (enemy.y - noiseOffsetY) * 500;
 
-        /* Outside of view screen - no need to draw */
-        if (centerX < -20 || centerX > width + 20 || centerY < -20 || centerY > height + 20) {
+        if(enemy.type == 4 && (centerX < -500-width || centerX > width + 500 || centerY < -500-height || centerY > height + 500)) {
+            continue;
+        } else        /* Outside of view screen - no need to draw */
+        if (centerX < -20-width || centerX > width + 20 || centerY < -20-height || centerY > height + 20) {
             continue;
         }
 
@@ -589,6 +591,14 @@ function drawEnemies() {
         let circleRadius = circleDiameter / 2;
 
         switch (enemy.type) {
+            case 4:
+                let angle = drawMobType4(centerX, centerY, circleRadius);
+                if(game_state == 0 && laserHitsTriangle(centerX, centerY, angle-PI/2, shipCoordinates)) {
+                    if(dist(centerX, centerY, width/2, height/2) < 500) {
+                        game_state = CRASH_START;
+                    }
+                }
+                break;
             case 3:
                 drawMobType3(centerX, centerY, circleDiameter, circleRadius);
                 break;
@@ -603,6 +613,32 @@ function drawEnemies() {
         stroke(1);
         fill(255);
     }
+}
+
+function drawMobType4(centerX, centerY, mobRadius) {
+    let laserRange = 500;
+
+    // Draw the mob
+    fill(0); // Black mob
+    noStroke();
+    ellipse(centerX, centerY, mobRadius * 2, mobRadius * 2);
+
+    // Calculate the laser direction based on system time
+    let currentTime = millis() / 1000; // Get current time in seconds
+    let angle = (currentTime % 4) / 4 * TWO_PI; // Complete revolution every 2 seconds
+
+    // Calculate the end point of the laser
+    let laserEndX = centerX + laserRange * cos(angle);
+    let laserEndY = centerY + laserRange * sin(angle);
+
+    // Draw the laser
+    stroke(255, 0, 0); // Red laser
+    strokeWeight(2);
+    line(centerX, centerY, laserEndX, laserEndY);
+    stroke(1);
+    fill(255);
+    strokeWeight(1);
+    return angle;
 }
 
 function drawMobType3(centerX, centerY, circleDiameter, circleRadius) {
@@ -873,7 +909,7 @@ function draw() {
     clear();
 
     drawParticles();
-    drawEnemies();
+    
     drawPowerups();
 
     if (game_state == CRASH_START) {
@@ -896,6 +932,7 @@ function draw() {
         drawBackground([]);
         drawBullets([]);
         drawOtherShips([]);
+        drawEnemies([]);
         return;
     } else {
         sendLocationUpdate(noiseOffsetX, noiseOffsetY, angle, width / 2, height / 2, laserOn, game_state == SHIELD_UP);
@@ -905,6 +942,7 @@ function draw() {
         drawOtherShips(shipCoordinates);
         drawBackground(shipCoordinates);
         drawBullets(shipCoordinates);
+        drawEnemies(shipCoordinates);
     }
 
 
